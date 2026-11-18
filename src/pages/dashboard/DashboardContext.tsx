@@ -137,6 +137,12 @@ export const LAYOUT_DEFINITIONS: Array<{
     desc: 'قائمة أفقية كلاسيكية مع صورة جانبية واضحة ووصف وسعر كل صنف',
     icon: '📑',
   },
+  {
+    id: 'cards',
+    title: 'بطاقات عرض عريضة',
+    desc: 'بطاقة كبيرة لكل منتج بصورة عريضة ووصف واضح وزر إضافة بارز',
+    icon: '🖼️',
+  },
 ];
 
 export const ANIMATED_EMOJIS = ['🍢', '🍔', '🍕', '🍟', '🌯', '🥗', '☕', '🥤', '🍰', '🍫', '🍗', '⚡', '🔥', '✨', '🍽️', '🎁'];
@@ -891,7 +897,7 @@ function useDashboardController({
 
   // APPEARANCE STATE
   const normalizeLayoutChoice = (raw?: string): MenuLayout =>
-    raw === 'grid3' ? 'grid3' : raw === 'grid' ? 'grid' : 'list';
+    raw === 'grid3' ? 'grid3' : raw === 'grid' ? 'grid' : raw === 'cards' ? 'cards' : 'list';
   const [selectedLayout, setSelectedLayout] = useState<MenuLayout>(() => {
     const candidate = normalizeLayoutChoice(rest.lay);
     return isLayoutAllowed(candidate) ? candidate : 'list';

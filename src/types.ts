@@ -9,6 +9,7 @@ export type MenuLayout =
   | 'grid3'
   | 'grid'
   | 'list'
+  | 'cards'
   | (string & {});
 
 export type OrderStatus = 'pending' | 'preparing' | 'completed' | 'cancelled';

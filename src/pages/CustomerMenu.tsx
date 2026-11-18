@@ -763,8 +763,8 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
   const canOrderNow =
     openNow || Boolean(rest.acceptOrdersWhenClosed) || Boolean(addons.closedNotice?.enabled);
   const rawLay = rest.lay;
-  const layout: 'grid3' | 'grid' | 'list' =
-    rawLay === 'grid3' ? 'grid3' : rawLay === 'grid' ? 'grid' : 'list';
+  const layout: 'grid3' | 'grid' | 'list' | 'cards' =
+    rawLay === 'grid3' ? 'grid3' : rawLay === 'grid' ? 'grid' : rawLay === 'cards' ? 'cards' : 'list';
 
   // Active automatic menu discount (Countdown Timer discount OR Happy Hour discount)
   const activeMenuDiscount = useMemo(() => getActiveMenuDiscount(addons, nowMs), [addons, nowMs]);
@@ -2650,6 +2650,250 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                     )
                                   ) : (
                                     <Plus size={isThreeCol ? 14 : 16} strokeWidth={2.6} />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* 4) WIDE SHOWCASE CARDS LAYOUT (cards) */}
+                  {layout === 'cards' && (
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
+                        gap: '12px',
+                        alignItems: 'stretch',
+                      }}
+                    >
+                      {catItems.map((it) => {
+                        const qty = getItemCartQty(it.id);
+                        const priceInfo = getPriceDisplay(it, currency, activeMenuDiscount, resolvedPlan.perms.itemDiscounts);
+                        const itemEval = itemEvalMap.get(it.id) || evaluateItemAvailability(it, cat, nowDate);
+                        const unavailable = !itemEval.available;
+                        const isFav = favoriteIds.includes(it.id);
+                        const hasSavingsBadge = Boolean(
+                          it.badges?.some(
+                            (b) =>
+                              String(b.text || '').includes('توفير') ||
+                              String(b.text || '').includes('وفر')
+                          )
+                        );
+
+                        return (
+                          <article
+                            key={it.id}
+                            onClick={() => openProductModal(it)}
+                            style={{
+                              background: 'var(--pm-card)',
+                              border: '1px solid var(--pm-line)',
+                              borderRadius: '18px',
+                              overflow: 'hidden',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              opacity: unavailable ? 0.55 : 1,
+                              boxShadow: isLightMenu ? '0 4px 18px rgba(15, 23, 42, 0.07)' : '0 8px 22px rgba(0, 0, 0, 0.36)',
+                            }}
+                          >
+                            <div
+                              style={{
+                                position: 'relative',
+                                aspectRatio: '16 / 9',
+                                background: 'var(--pm-soft)',
+                              }}
+                            >
+                              {it.img ? (
+                                <img
+                                  src={it.img}
+                                  alt={it.n}
+                                  loading="lazy"
+                                  decoding="async"
+                                  referrerPolicy="no-referrer"
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'grid',
+                                    placeItems: 'center',
+                                    color: 'var(--pm-muted)',
+                                  }}
+                                >
+                                  <Utensils size={32} />
+                                </div>
+                              )}
+                              {qty > 0 && (
+                                <span className="pm-qty-badge tabular-nums">{qty} ×</span>
+                              )}
+                              {addons.savedFavorites?.enabled && (
+                                <button
+                                  type="button"
+                                  aria-label="مفضلة"
+                                  onClick={(e) => toggleFavorite(it.id, e)}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '8px',
+                                    insetInlineEnd: '8px',
+                                    width: '28px',
+                                    height: '28px',
+                                    borderRadius: '50%',
+                                    border: '1px solid var(--pm-line)',
+                                    background: 'color-mix(in srgb, var(--pm-card) 86%, transparent)',
+                                    display: 'grid',
+                                    placeItems: 'center',
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  <Heart size={14} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
+                                </button>
+                              )}
+                            </div>
+
+                            <div
+                              style={{
+                                padding: '12px 14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                flex: 1,
+                                gap: '8px',
+                              }}
+                            >
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'var(--pm-ink)', lineHeight: 1.35 }}>
+                                    {it.n}
+                                  </h3>
+                                  {it.badges?.map((b, bi) => renderBadge(b, bi))}
+                                  {unavailable ? (
+                                    itemEval.outOfSchedule ? (
+                                      <span className="pm-badge gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                        <Clock size={11} />
+                                        <span>متوفر {itemEval.badgeText}</span>
+                                      </span>
+                                    ) : (
+                                      <span className="pm-badge red">غير متوفر</span>
+                                    )
+                                  ) : (
+                                    it.availabilitySchedule?.enabled &&
+                                    itemEval.badgeText && (
+                                      <span
+                                        style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '3px',
+                                          fontSize: '11px',
+                                          fontWeight: 700,
+                                          color: 'var(--pm-muted)',
+                                        }}
+                                      >
+                                        <Clock size={10} />
+                                        <span>{itemEval.badgeText}</span>
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+
+                                {it.d && (
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      fontSize: '12.5px',
+                                      color: 'var(--pm-muted)',
+                                      lineHeight: 1.5,
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden',
+                                    }}
+                                  >
+                                    {it.d}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  gap: '8px',
+                                  paddingTop: '4px',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                  <span
+                                    className="tabular-nums"
+                                    style={{
+                                      color: accentText,
+                                      fontWeight: 900,
+                                      fontSize: '15px',
+                                    }}
+                                  >
+                                    {priceInfo.main}
+                                  </span>
+                                  {priceInfo.rawBefore > 0 && (
+                                    <>
+                                      <span
+                                        className="tabular-nums"
+                                        style={{
+                                          color: 'var(--pm-muted)',
+                                          textDecoration: 'line-through',
+                                          fontSize: '12px',
+                                          fontWeight: 600,
+                                        }}
+                                      >
+                                        {formatNumber(priceInfo.rawBefore)} {currency}
+                                      </span>
+                                      {!hasSavingsBadge && priceInfo.savings > 0 && (
+                                        <span className="pm-badge green tabular-nums">
+                                          وفر {formatNumber(priceInfo.savings)} {currency}
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+
+                                <button
+                                  type="button"
+                                  disabled={unavailable}
+                                  aria-label={`إضافة ${it.n} للسلة`}
+                                  onClick={(e) => quickAddOrOpenModal(it, e)}
+                                  style={{
+                                    border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
+                                    borderRadius: '11px',
+                                    background: brandColor,
+                                    color: brandInk,
+                                    height: '34px',
+                                    padding: '0 12px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '5px',
+                                    fontSize: '12.5px',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {unavailable ? (
+                                    itemEval.outOfSchedule ? (
+                                      <Clock size={14} />
+                                    ) : (
+                                      'نفد'
+                                    )
+                                  ) : (
+                                    <>
+                                      <Plus size={15} strokeWidth={2.6} />
+                                      <span>أضف</span>
+                                    </>
                                   )}
                                 </button>
                               </div>
