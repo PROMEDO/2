@@ -23,7 +23,6 @@ export const AddonsPage: React.FC = () => {
   const prefersReducedMotion = useReducedMotion();
   const {
     resolvedPlan,
-    customTabLabel,
     currency,
     allItems,
     addonsState,
@@ -44,35 +43,26 @@ export const AddonsPage: React.FC = () => {
     (a) => isAddonAllowedForPlan(a.key, resolvedPlan) && Boolean((addonsState[a.key] as Record<string, any> | undefined)?.enabled)
   ).length;
   const visibleAddons = ADDON_CATALOG;
+  const addonsLimitText = `${enabledCount}/${allowedAddonsCount}`;
 
   return (
     <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
       <motion.div
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        className="mp-items-toolbar"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-        style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}
+        transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+        style={{ justifyContent: 'flex-end' }}
       >
-        <div>
-          <h1 style={{ fontSize: '26px', fontWeight: 900, color: 'var(--ink)', margin: '0 0 6px' }}>
-            {customTabLabel('addons', 'متجر الإضافات والميزات التفاعلية ⚡')}
-          </h1>
-          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '14px' }}>
-            30 ميزة تسويقية وبيعية حقيقية — شغّل وعدّل أي ميزة لتعمل فوراً في منيو مطعمك.
-          </p>
-        </div>
         <div
-          style={{
-            background: 'var(--soft)',
-            border: '1px solid var(--line)',
-            borderRadius: '12px',
-            padding: '8px 14px',
-            fontSize: '13px',
-            fontWeight: 800,
-            color: 'var(--brand)',
-          }}
+          className={`mp-items-count-box ${allowedAddonsCount === 0 ? 'is-limit' : ''}`}
+          aria-label={`صلاحيتك بالإضافات ${addonsLimitText}`}
         >
-          المفعلة: {enabledCount} • المتاح في باقتك ({resolvedPlan.plan.n}): {allowedAddonsCount} من {ADDON_CATALOG.length}
+          <span className="mp-items-count-label">صلاحيتك بالإضافات</span>
+          <span className="mp-items-count-divider" aria-hidden="true" />
+          <span dir="ltr" className="mp-items-count-num tabular-nums">
+            {addonsLimitText}
+          </span>
         </div>
       </motion.div>
 

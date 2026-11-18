@@ -21,7 +21,8 @@ export interface MenuThemeDefinition extends MenuThemePalette {
   id: string;
   name: string;
   subtitle: string;
-  category?: 'classic' | 'girly' | 'cyber';
+  category?: 'classic' | 'girly' | 'cyber' | 'seasonal';
+  seasonal?: boolean;
   mode: 'dark' | 'light';
   minTierIndex: number; // 0-1 = Starter (4), 2 = Pro (7), 3 = VIP (all 10)
   lightPalette: MenuThemePalette;
@@ -29,9 +30,10 @@ export interface MenuThemeDefinition extends MenuThemePalette {
 }
 
 export interface MenuShapeDefinition {
-  id: 'modern' | 'glass' | 'cartoon' | 'dreamy' | 'pill' | 'sharp' | 'bordered' | 'soft';
+  id: 'modern' | 'glass' | 'cartoon' | 'dreamy' | 'pill' | 'sharp' | 'bordered' | 'soft' | 'ramadan' | 'eid' | 'newyear';
   name: string;
   subtitle: string;
+  badge?: string;
 }
 
 export const MENU_SHAPES: MenuShapeDefinition[] = [
@@ -74,6 +76,24 @@ export const MENU_SHAPES: MenuShapeDefinition[] = [
     id: 'soft',
     name: 'منقوش ناعم',
     subtitle: 'خلفية بنقاط هندسية وبطاقات بارزة بلا حدود حادة',
+  },
+  {
+    id: 'ramadan',
+    name: 'مظهر رمضان 🌙',
+    subtitle: 'فوانيس معلقة متحركة، هلال ونجوم، وإطارات ذهبية رمضانية',
+    badge: 'رمضان 🏮',
+  },
+  {
+    id: 'eid',
+    name: 'مظهر العيد 🎉',
+    subtitle: 'زينة العيد، بالونات ونجوم متطايرة، وإطارات احتفالية مبهجة',
+    badge: 'العيد ✨',
+  },
+  {
+    id: 'newyear',
+    name: 'مظهر رأس السنة 🎆',
+    subtitle: 'ألعاب نارية متلألئة، ثلوج متساقطة، وبريق ذهبي فاخر',
+    badge: 'رأس السنة ❄️',
   },
 ];
 
@@ -447,6 +467,117 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
       text: '#082f49',
       muted: '#4b6b84',
       line: 'rgba(2, 132, 199, 0.18)',
+    },
+  },
+  {
+    id: 'ramadan-royal',
+    name: 'مظهر رمضان الذهبي 🌙',
+    subtitle: 'كحلي ليلي ملكي مع ذهبي الفوانيس والهلال المتوهج',
+    category: 'seasonal',
+    seasonal: true,
+    mode: 'dark',
+    brand: '#F59E0B',
+    accent: '#FDE047',
+    bg: '#090d1f',
+    surface: '#111834',
+    surfaceSoft: '#192248',
+    text: '#fefce8',
+    muted: '#cbd5e1',
+    line: 'rgba(245, 158, 11, 0.34)',
+    minTierIndex: 0,
+    darkPalette: {
+      brand: '#F59E0B',
+      accent: '#FDE047',
+      bg: '#090d1f',
+      surface: '#111834',
+      surfaceSoft: '#192248',
+      text: '#fefce8',
+      muted: '#cbd5e1',
+      line: 'rgba(245, 158, 11, 0.34)',
+    },
+    lightPalette: {
+      brand: '#B45309',
+      accent: '#F59E0B',
+      bg: '#fdf8ec',
+      surface: '#ffffff',
+      surfaceSoft: '#fef0c7',
+      text: '#1e1b4b',
+      muted: '#6b4f1d',
+      line: 'rgba(180, 83, 9, 0.24)',
+    },
+  },
+  {
+    id: 'eid-joy',
+    name: 'مظهر العيد الاحتفالي 🎉',
+    subtitle: 'زمردي مبهج مع ذهبي ولمسات احتفالية مشرقة',
+    category: 'seasonal',
+    seasonal: true,
+    mode: 'dark',
+    brand: '#10B981',
+    accent: '#FBBF24',
+    bg: '#071b16',
+    surface: '#0e2922',
+    surfaceSoft: '#153a30',
+    text: '#f0fdf4',
+    muted: '#a7f3d0',
+    line: 'rgba(251, 191, 36, 0.34)',
+    minTierIndex: 0,
+    darkPalette: {
+      brand: '#10B981',
+      accent: '#FBBF24',
+      bg: '#071b16',
+      surface: '#0e2922',
+      surfaceSoft: '#153a30',
+      text: '#f0fdf4',
+      muted: '#a7f3d0',
+      line: 'rgba(251, 191, 36, 0.34)',
+    },
+    lightPalette: {
+      brand: '#059669',
+      accent: '#EC4899',
+      bg: '#f2fbf7',
+      surface: '#ffffff',
+      surfaceSoft: '#dcfce7',
+      text: '#064e3b',
+      muted: '#3b6e5c',
+      line: 'rgba(5, 150, 105, 0.22)',
+    },
+  },
+  {
+    id: 'newyear-gala',
+    name: 'مظهر رأس السنة 🎆',
+    subtitle: 'ليلي فاخر مع ذهبي الألعاب النارية وبريق جليدي',
+    category: 'seasonal',
+    seasonal: true,
+    mode: 'dark',
+    brand: '#FBBF24',
+    accent: '#38BDF8',
+    bg: '#070913',
+    surface: '#101428',
+    surfaceSoft: '#19203d',
+    text: '#f8fafc',
+    muted: '#94a3b8',
+    line: 'rgba(56, 189, 248, 0.32)',
+    minTierIndex: 0,
+    darkPalette: {
+      brand: '#FBBF24',
+      accent: '#38BDF8',
+      bg: '#070913',
+      surface: '#101428',
+      surfaceSoft: '#19203d',
+      text: '#f8fafc',
+      muted: '#94a3b8',
+      line: 'rgba(56, 189, 248, 0.32)',
+    },
+    lightPalette: {
+      brand: '#1D4ED8',
+      accent: '#F59E0B',
+      bg: '#f1f5ff',
+      surface: '#ffffff',
+      surfaceSoft: '#e0eaff',
+      text: '#0f172a',
+      muted: '#475569',
+      line: 'rgba(29, 78, 216, 0.22)',
     },
   },
 ];
@@ -1091,7 +1222,23 @@ export function getAllowedThemesForPlan(resolved: ResolvedPlanInfo): MenuThemeDe
     return MENU_THEMES;
   }
   const limit = Math.max(2, resolved.maxThemes || 2);
-  return MENU_THEMES.slice(0, limit);
+  const regular = MENU_THEMES.filter((t) => !t.seasonal).slice(0, limit);
+  const seasonal = MENU_THEMES.filter((t) => t.seasonal);
+  return [...regular, ...seasonal];
+}
+
+export function getSeasonalPairedShape(presetId?: string): 'ramadan' | 'eid' | 'newyear' | null {
+  if (presetId === 'ramadan-royal') return 'ramadan';
+  if (presetId === 'eid-joy') return 'eid';
+  if (presetId === 'newyear-gala') return 'newyear';
+  return null;
+}
+
+export function getSeasonalPairedTheme(shapeId?: string): string | null {
+  if (shapeId === 'ramadan') return 'ramadan-royal';
+  if (shapeId === 'eid') return 'eid-joy';
+  if (shapeId === 'newyear') return 'newyear-gala';
+  return null;
 }
 
 export function getAllowedLayoutsCount(resolved: ResolvedPlanInfo): number {

@@ -20,7 +20,10 @@ export type MenuThemeShape =
   | 'pill'
   | 'sharp'
   | 'bordered'
-  | 'soft';
+  | 'soft'
+  | 'ramadan'
+  | 'eid'
+  | 'newyear';
 
 export type OrderStatus = 'pending' | 'preparing' | 'completed' | 'cancelled';
 

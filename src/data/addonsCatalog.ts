@@ -25,13 +25,20 @@ export const ADDON_CATEGORY_TABS: Array<{ id: AddonCategoryFilter; label: string
 ];
 
 export const ADDON_CATALOG: AddonMetaItem[] = [
-  // --- Marketing & Offers ---
+  // --- Top Priority: Essential Sales, Delivery & Core Offers ---
   {
-    key: 'countdownTimer',
-    category: 'marketing',
-    icon: '⏳',
-    title: 'مؤقت العروض التنازلي + خصم فوري',
-    desc: 'عدّاد وقت تنازلي مباشر في أعلى المنيو يطبق نسبة أو مبلغ خصم تلقائياً على جميع أسعار القائمة.',
+    key: 'freeDeliveryProgress',
+    category: 'sales',
+    icon: '🚚',
+    title: 'الحد الأدنى للتوصيل المجاني + شريط التقدم',
+    desc: 'تحديد الحد الأدنى للتوصيل المجاني وعرض شريط تقدم تحفيزي للزبون في السلة لزيادة قيمة الطلب.',
+  },
+  {
+    key: 'minOrder',
+    category: 'sales',
+    icon: '🛒',
+    title: 'الحد الأدنى لقيمة الطلب',
+    desc: 'تحديد أقل مبلغ مسموح به لإتمام طلب التوصيل داخل السلة لضمان جدوى الطلبات.',
   },
   {
     key: 'promoCoupons',
@@ -39,13 +46,6 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
     icon: '🎟️',
     title: 'أكواد وكوبونات الخصم المتعددة',
     desc: 'إنشاء عدة كوبونات خصم تظهر للزبون في نهاية السلة لتطبيقها فوراً وحساب الخصم في الفاتورة.',
-  },
-  {
-    key: 'happyHour',
-    category: 'marketing',
-    icon: '☀️',
-    title: 'ساعة السعادة (Happy Hour)',
-    desc: 'تفعيل خصم تلقائي خاص يومياً خلال ساعات الهدوء (مثلاً 2 إلى 5 عصراً) لتحفيز الطلبات.',
   },
   {
     key: 'offerPopup',
@@ -62,35 +62,28 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
     desc: 'شريط ملون بارز أعلى القائمة لعرض التنبيهات وأهم العروض اليومية للزوار.',
   },
   {
+    key: 'countdownTimer',
+    category: 'marketing',
+    icon: '⏳',
+    title: 'مؤقت العروض التنازلي + خصم فوري',
+    desc: 'عدّاد وقت تنازلي مباشر في أعلى المنيو يطبق نسبة أو مبلغ خصم تلقائياً على جميع أسعار القائمة.',
+  },
+  {
+    key: 'happyHour',
+    category: 'marketing',
+    icon: '☀️',
+    title: 'ساعة السعادة (Happy Hour)',
+    desc: 'تفعيل خصم تلقائي خاص يومياً خلال ساعات الهدوء (مثلاً 2 إلى 5 عصراً) لتحفيز الطلبات.',
+  },
+  {
     key: 'dailySpecialBanner',
     category: 'marketing',
     icon: '🌟',
     title: 'بطاقة طبق اليوم وعرض الشيف',
     desc: 'بطاقة تسويقية مميزة أعلى المنيو تبرز طبقاً معيناً وتفتح تفاصيله مباشرة بضغطة واحدة.',
   },
-  {
-    key: 'spinWheelPromo',
-    category: 'marketing',
-    icon: '🎡',
-    title: 'عجلة الحظ والمكافآت التفاعلية',
-    desc: 'لعبة عجلة حظ عائمة للزبائن تمنحهم خصماً فورياً أو توصيلاً مجانياً يُطبق مباشرة في السلة.',
-  },
-  {
-    key: 'firstOrderDiscount',
-    category: 'marketing',
-    icon: '🎁',
-    title: 'خصم ترحيبي للطلب الأول',
-    desc: 'خصم أوتوماتيكي داخل السلة للزبائن الجدد في أول طلب لهم لتشجيعهم على الشراء الأول.',
-  },
 
-  // --- Sales & Upselling ---
-  {
-    key: 'freeGiftThreshold',
-    category: 'sales',
-    icon: '🎀',
-    title: 'هدية مجانية عند تجاوز مبلغ',
-    desc: 'منح هدية مجانية (مشروب أو بطاطا) عند وصول الطلب لمبلغ محدد مع شريط تقدم تحفيزي في السلة.',
-  },
+  // --- High-Impact Revenue, Operations & Customer Support ---
   {
     key: 'cartUpsell',
     category: 'sales',
@@ -99,40 +92,56 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
     desc: 'عرض أطباق ومشروبات مقترحة بضغطة زر داخل سلة الطلبات لرفع قيمة متوسط الفاتورة.',
   },
   {
-    key: 'freeDeliveryProgress',
-    category: 'sales',
-    icon: '🚚',
-    title: 'الحد الأدنى للتوصيل المجاني + شريط التقدم',
-    desc: 'تحديد الحد الأدنى للتوصيل المجاني وعرض شريط تقدم تحفيزي للزبون في السلة لزيادة قيمة الطلب.',
+    key: 'firstOrderDiscount',
+    category: 'marketing',
+    icon: '🎁',
+    title: 'خصم ترحيبي للطلب الأول',
+    desc: 'خصم أوتوماتيكي داخل السلة للزبائن الجدد في أول طلب لهم لتشجيعهم على الشراء الأول.',
   },
   {
-    key: 'loyaltyPoints',
+    key: 'freeGiftThreshold',
     category: 'sales',
-    icon: '💎',
-    title: 'نظام نقاط الولاء للزبائن',
-    desc: 'احتساب نقاط ولاء تلقائية للزبون مع كل طلب وعرض رصيده لتشجيعه على العودة باستمرار.',
+    icon: '🎀',
+    title: 'هدية مجانية عند تجاوز مبلغ',
+    desc: 'منح هدية مجانية (مشروب أو بطاطا) عند وصول الطلب لمبلغ محدد مع شريط تقدم تحفيزي في السلة.',
   },
   {
-    key: 'socialProofBadge',
-    category: 'sales',
-    icon: '🔥',
-    title: 'شارة الإقبال الحي (Social Proof)',
-    desc: 'إظهار إشعار موثوقية أعلى المنيو بعدد المتصفحين أو الطلبات اليومية لبناء الثقة وتسريع القرار.',
+    key: 'audioBell',
+    category: 'orders',
+    icon: '🔔',
+    title: 'رنين الجرس الصوتي للطلبات',
+    desc: 'تشغيل تنبيه صوتي فوري في لوحة التحكم عند وصول أي طلب جديد.',
   },
   {
-    key: 'flashTipOption',
-    category: 'sales',
-    icon: '💚',
-    title: 'إكرامية سائق التوصيل والكادر',
-    desc: 'أزرار اختيارية داخل السلة تتيح للزبون إضافة مبلغ تقديري بسيط للكادر أو السائق.',
+    key: 'whatsappSupportFloat',
+    category: 'experience',
+    icon: '💬',
+    title: 'زر واتساب الاستفسار العائم',
+    desc: 'أيقونة واتساب عائمة لتواصل الزبون السريع بشأن العزائم والحجوزات والاستفسارات الخاصة.',
   },
   {
-    key: 'minOrder',
-    category: 'sales',
-    icon: '🛒',
-    title: 'الحد الأدنى لقيمة الطلب',
-    desc: 'تحديد أقل مبلغ مسموح به لإتمام طلب التوصيل داخل السلة لضمان جدوى الطلبات.',
+    key: 'tableService',
+    category: 'orders',
+    icon: '🍽️',
+    title: 'خدمة الطاولات ونداء النادل',
+    desc: 'تحديد رقم الطاولة وإرسال طلب نداء النادل مباشرة عبر الواتساب للزبائن داخل الصالة.',
   },
+  {
+    key: 'deliveryEtaTracker',
+    category: 'experience',
+    icon: '🛵',
+    title: 'تقدير وقت التوصيل الحي',
+    desc: 'عرض المدة المتوقعة لوصول الطلب بوضوح في واجهة المنيو والسلة لراحة الزبون.',
+  },
+  {
+    key: 'prepBadge',
+    category: 'experience',
+    icon: '⏱️',
+    title: 'شارة وقت التحضير المتوقع',
+    desc: 'عرض وقت تحضير وتجهيز الطلبات مباشرة أسفل اسم المطعم لتقليل التساؤلات.',
+  },
+
+  // --- Order Controls & Engagement ---
   {
     key: 'serviceFee',
     category: 'sales',
@@ -140,8 +149,20 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
     title: 'رسوم التغليف والخدمة',
     desc: 'إضافة رسوم تغليف أو خدمة ثابتة وتفصيلها بشفافية تلقائياً في السلة والفاتورة.',
   },
-
-  // --- Customer Experience & Engagement ---
+  {
+    key: 'scheduledOrder',
+    category: 'orders',
+    icon: '📅',
+    title: 'جدولة موعد الطلب المسبق',
+    desc: 'السماح للزبون باختيار وقت محدد للاستلام أو التوصيل اليوم بدلاً من الطلب الفوري فقط.',
+  },
+  {
+    key: 'closedNotice',
+    category: 'orders',
+    icon: '🌙',
+    title: 'إشعار الطلب المسبق خارج الدوام',
+    desc: 'تنبيه واضح للزبائن عند إغلاق المطعم مع إتاحة استلام الطلبات المسبقة.',
+  },
   {
     key: 'chefPicksFilter',
     category: 'experience',
@@ -164,6 +185,22 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
     desc: 'زر سريع يظهر للزبون لإعادة إضافة أصناف آخر طلب أرسله إلى السلة فوراً.',
   },
   {
+    key: 'spinWheelPromo',
+    category: 'marketing',
+    icon: '🎡',
+    title: 'عجلة الحظ والمكافآت التفاعلية',
+    desc: 'لعبة عجلة حظ عائمة للزبائن تمنحهم خصماً فورياً أو توصيلاً مجانياً يُطبق مباشرة في السلة.',
+  },
+  {
+    key: 'loyaltyPoints',
+    category: 'sales',
+    icon: '💎',
+    title: 'نظام نقاط الولاء للزبائن',
+    desc: 'احتساب نقاط ولاء تلقائية للزبون مع كل طلب وعرض رصيده لتشجيعه على العودة باستمرار.',
+  },
+
+  // --- Secondary Enhancements ---
+  {
     key: 'customerReviews',
     category: 'experience',
     icon: '⭐',
@@ -171,48 +208,18 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
     desc: 'عرض تقييمات الزبائن في المنيو وإتاحة نموذج إضافة تقييم وتجربة جديدة.',
   },
   {
-    key: 'prepBadge',
-    category: 'experience',
-    icon: '⏱️',
-    title: 'شارة وقت التحضير المتوقع',
-    desc: 'عرض وقت تحضير وتجهيز الطلبات مباشرة أسفل اسم المطعم لتقليل التساؤلات.',
+    key: 'socialProofBadge',
+    category: 'sales',
+    icon: '🔥',
+    title: 'شارة الإقبال الحي (Social Proof)',
+    desc: 'إظهار إشعار موثوقية أعلى المنيو بعدد المتصفحين أو الطلبات اليومية لبناء الثقة وتسريع القرار.',
   },
   {
-    key: 'deliveryEtaTracker',
-    category: 'experience',
-    icon: '🛵',
-    title: 'تقدير وقت التوصيل الحي',
-    desc: 'عرض المدة المتوقعة لوصول الطلب بوضوح في واجهة المنيو والسلة لراحة الزبون.',
-  },
-  {
-    key: 'healthNotices',
-    category: 'experience',
-    icon: '🥗',
-    title: 'العبارات الصحية والسعرات',
-    desc: 'إظهار قائمة المعلومات الغذائية والتحذيرات الصحية في القائمة الجانبية للمنيو.',
-  },
-  {
-    key: 'whatsappSupportFloat',
-    category: 'experience',
-    icon: '💬',
-    title: 'زر واتساب الاستفسار العائم',
-    desc: 'أيقونة واتساب عائمة لتواصل الزبون السريع بشأن العزائم والحجوزات والاستفسارات الخاصة.',
-  },
-
-  // --- Operations & Order Controls ---
-  {
-    key: 'tableService',
-    category: 'orders',
-    icon: '🍽️',
-    title: 'خدمة الطاولات ونداء النادل',
-    desc: 'تحديد رقم الطاولة وإرسال طلب نداء النادل مباشرة عبر الواتساب للزبائن داخل الصالة.',
-  },
-  {
-    key: 'scheduledOrder',
-    category: 'orders',
-    icon: '📅',
-    title: 'جدولة موعد الطلب المسبق',
-    desc: 'السماح للزبون باختيار وقت محدد للاستلام أو التوصيل اليوم بدلاً من الطلب الفوري فقط.',
+    key: 'flashTipOption',
+    category: 'sales',
+    icon: '💚',
+    title: 'إكرامية سائق التوصيل والكادر',
+    desc: 'أزرار اختيارية داخل السلة تتيح للزبون إضافة مبلغ تقديري بسيط للكادر أو السائق.',
   },
   {
     key: 'cutleryOption',
@@ -229,18 +236,11 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
     desc: 'أداة ذكية داخل السلة للأصدقاء والعوائل لحساب حصة كل شخص من الفاتورة فوراً.',
   },
   {
-    key: 'closedNotice',
-    category: 'orders',
-    icon: '🌙',
-    title: 'إشعار الطلب المسبق خارج الدوام',
-    desc: 'تنبيه واضح للزبائن عند إغلاق المطعم مع إتاحة استلام الطلبات المسبقة.',
-  },
-  {
-    key: 'audioBell',
-    category: 'orders',
-    icon: '🔔',
-    title: 'رنين الجرس الصوتي للطلبات',
-    desc: 'تشغيل تنبيه صوتي فوري في لوحة التحكم عند وصول أي طلب جديد.',
+    key: 'healthNotices',
+    category: 'experience',
+    icon: '🥗',
+    title: 'العبارات الصحية والسعرات',
+    desc: 'إظهار قائمة المعلومات الغذائية والتحذيرات الصحية في القائمة الجانبية للمنيو.',
   },
 ];
 

@@ -72,6 +72,7 @@ import { ensureRestaurantDefaults } from '../utils/businessDefaults';
 import { getBusinessTerms } from '../utils/terminology';
 import { AppLogo } from '../components/AppLogo';
 import { ShareMenuModal } from '../components/ShareMenuModal';
+import { SeasonalHeroRibbon, SeasonalMenuOverlay } from '../components/SeasonalMenuDecor';
 import {
   ActiveMenuDiscount,
   applyMenuPriceDiscount,
@@ -349,7 +350,10 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
     rest?.themeShape === 'pill' ||
     rest?.themeShape === 'sharp' ||
     rest?.themeShape === 'bordered' ||
-    rest?.themeShape === 'soft'
+    rest?.themeShape === 'soft' ||
+    rest?.themeShape === 'ramadan' ||
+    rest?.themeShape === 'eid' ||
+    rest?.themeShape === 'newyear'
       ? rest.themeShape
       : 'modern';
   const isCustomPreset = rest?.themePreset === 'custom' && resolvedPlan.perms.customColors;
@@ -1507,6 +1511,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
         color: effectiveInk,
       } as React.CSSProperties}
     >
+      <SeasonalMenuOverlay shape={activeShape} isLight={isLightMenu} />
       {/* Announcement Bar Addon */}
       {addons.announcementBar?.enabled && addons.announcementBar.text && (
         <div
@@ -1666,6 +1671,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
       </header>
 
       <div className="pm-container">
+        <SeasonalHeroRibbon shape={activeShape} />
         {/* Hero Cover Carousel (only shown if merchant uploaded banners) */}
         {coverImages.length > 0 && (
           <div className="pm-hero-carousel">
