@@ -543,6 +543,7 @@ export function injectSubdomainHtmlMeta(
     acceptsReservations: 'False',
   }).replace(/</g, '\\u003c');
 
+  const embedImg = escapeHtml(`${storeUrl}/assets/aistudio/icon_f95f5a07.png`);
   let out = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${storeName} – المنيو الإلكتروني الذكي | Menu+</title>`);
   out = out.replace(
     /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i,
@@ -555,6 +556,14 @@ export function injectSubdomainHtmlMeta(
   out = out.replace(
     /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i,
     `<meta property="og:description" content="${tagline}" />`
+  );
+  out = out.replace(
+    /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i,
+    `<meta property="og:image" content="${embedImg}" />`
+  );
+  out = out.replace(
+    /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i,
+    `<meta name="twitter:image" content="${embedImg}" />`
   );
 
   const extraTags = [

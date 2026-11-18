@@ -33,6 +33,7 @@ import { DashboardPage } from './pages/dashboard';
 import { AdminView } from './pages/Admin';
 import { PublicMenuView } from './pages/CustomerMenu';
 import { detectClientSubdomain } from './utils/businessDefaults';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 declare global {
   interface Window {
@@ -456,6 +457,8 @@ export default function App() {
           />
         );
       })()}
+
+      <PWAInstallPrompt />
     </div>
   );
 }

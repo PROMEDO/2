@@ -1758,11 +1758,14 @@ async function injectSeoMetaIntoHtml(html: string, req: Request): Promise<string
     const safeTitle = escapeSeoAttr(pageTitle);
     const safeDesc = escapeSeoAttr(pageDesc);
     const safeCanonical = escapeSeoAttr(canonicalUrl);
+    const safeEmbedImage = escapeSeoAttr(`${origin}/assets/aistudio/icon_f95f5a07.png`);
 
     let out = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${safeTitle}</title>`);
     out = out.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${safeDesc}" />`);
     out = out.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${safeTitle}" />`);
     out = out.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${safeDesc}" />`);
+    out = out.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${safeEmbedImage}" />`);
+    out = out.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${safeEmbedImage}" />`);
 
     const seoTags: string[] = [
       `<link rel="canonical" href="${safeCanonical}" />`,

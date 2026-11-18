@@ -12,6 +12,14 @@ export type MenuLayout =
   | 'list'
   | (string & {});
 
+export type MenuThemeShape =
+  | 'modern'
+  | 'glass'
+  | 'pill'
+  | 'sharp'
+  | 'bordered'
+  | 'soft';
+
 export type OrderStatus = 'pending' | 'preparing' | 'completed' | 'cancelled';
 
 export type OrderType = 'delivery' | 'pickup' | 'table';
@@ -578,6 +586,7 @@ export interface Restaurant {
   themeMode?: 'dark' | 'light' | 'auto';
   dashboardThemeMode?: 'dark' | 'light' | 'auto';
   themePreset?: string;
+  themeShape?: MenuThemeShape;
   bgColor?: string;
   currency?: string;
   country?: string;

@@ -188,7 +188,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         name: brandTitle,
         alternateName: ['Menu+', 'منيو بلس', 'Menu Plus'],
         url: origin,
-        logo: `${origin}/assets/favicon.png`,
+        logo: `${origin}/assets/aistudio/icon_f95f5a07.png`,
         sameAs: ['https://instagram.com/iq.menu'],
       },
       {

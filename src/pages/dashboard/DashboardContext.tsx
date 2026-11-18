@@ -24,6 +24,7 @@ import {
   MediaLibraryItem,
   MenuItem,
   MenuLayout,
+  MenuThemeShape,
   Order,
   OrderStatus,
   PricingPlan,
@@ -62,6 +63,7 @@ import {
   buildDefaultAddons,
 } from '../../data/addonsCatalog';
 import {
+  MENU_SHAPES,
   getAddonRequiredPlanLabel,
   getAllowedLayoutsCount,
   getAllowedThemesForPlan,
@@ -921,8 +923,15 @@ function useDashboardController({
   const [dashboardThemeMode, setDashboardThemeMode] = useState<'dark' | 'light' | 'auto'>(() =>
     resolveDashboardPref(rest)
   );
+  const normalizeShapeChoice = (raw?: string): MenuThemeShape =>
+    raw === 'glass' || raw === 'pill' || raw === 'sharp' || raw === 'bordered' || raw === 'soft'
+      ? raw
+      : 'modern';
   const [menuThemePreset, setMenuThemePreset] = useState<string>(() =>
     rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light')
+  );
+  const [menuThemeShape, setMenuThemeShape] = useState<MenuThemeShape>(() =>
+    normalizeShapeChoice(rest.themeShape)
   );
   const [restColor, setRestColor] = useState<string>(() => rest.color || '#059669');
   const [restBgColor, setRestBgColor] = useState<string>(() => rest.bgColor || '');
@@ -985,7 +994,7 @@ function useDashboardController({
   // Synchronize dashboard form state when switching branch or syncing remote DB
   const syncedRestRef = useRef<string>('');
   useEffect(() => {
-    const sig = `${rid}|${rest.planId || ''}|${rest.slug || ''}|${rest.lay || ''}|${rest.themeMode || ''}|${rest.dashboardThemeMode || ''}|${rest.themePreset || ''}|${rest.color || ''}|${rest.bgColor || ''}|${rest.currency || ''}|${rest.logo || ''}|${rest.coverImages?.[0] || ''}|${rest.n || ''}|${rest.orderChannel || ''}|${rest.telegramNotificationsEnabled === false ? '0' : '1'}`;
+    const sig = `${rid}|${rest.planId || ''}|${rest.slug || ''}|${rest.lay || ''}|${rest.themeMode || ''}|${rest.dashboardThemeMode || ''}|${rest.themePreset || ''}|${rest.themeShape || ''}|${rest.color || ''}|${rest.bgColor || ''}|${rest.currency || ''}|${rest.logo || ''}|${rest.coverImages?.[0] || ''}|${rest.n || ''}|${rest.orderChannel || ''}|${rest.telegramNotificationsEnabled === false ? '0' : '1'}`;
     if (syncedRestRef.current === sig) return;
     syncedRestRef.current = sig;
     setAddonsState(buildDefaultAddons(rest));
@@ -994,6 +1003,7 @@ function useDashboardController({
     setMenuThemeMode(rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light');
     setDashboardThemeMode(resolveDashboardPref(rest));
     setMenuThemePreset(rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light'));
+    setMenuThemeShape(normalizeShapeChoice(rest.themeShape));
     setRestColor(rest.color || '#059669');
     setRestBgColor(rest.bgColor || '');
     setCoverUrlInput(rest.coverImages?.[0] || '');
@@ -1855,14 +1865,13 @@ function useDashboardController({
     }
     const effectiveMode = resolveEffectiveThemeMode(mode);
     const allowed = getAllowedThemesForPlan(resolvedPlan);
-    const currentTheme = getMenuThemeById(menuThemePreset, effectiveMode);
     const nextPreset =
-      currentTheme.mode === effectiveMode && allowed.some((t) => t.id === currentTheme.id)
-        ? currentTheme.id
-        : allowed.find((t) => t.mode === effectiveMode)?.id || (effectiveMode === 'light' ? 'clean-light' : 'emerald-dark');
+      allowed.some((t) => t.id === menuThemePreset)
+        ? menuThemePreset
+        : allowed[0]?.id || (effectiveMode === 'light' ? 'clean-light' : 'emerald-dark');
     const chosenTheme = getMenuThemeById(nextPreset, effectiveMode);
     setMenuThemeMode(mode);
-    setMenuThemePreset(nextPreset);
+    setMenuThemePreset(chosenTheme.id);
     if (!resolvedPlan.perms.customColors) {
       setRestColor(chosenTheme.brand);
       setRestBgColor('');
@@ -1871,7 +1880,7 @@ function useDashboardController({
     putItem<Restaurant>(`restaurants/${rid}`, {
       ...latestRest,
       themeMode: mode,
-      themePreset: nextPreset,
+      themePreset: chosenTheme.id,
       color: resolvedPlan.perms.customColors ? restColor : chosenTheme.brand,
       bgColor: resolvedPlan.perms.customColors ? (restBgColor.trim() || undefined) : undefined,
     });
@@ -1909,9 +1918,9 @@ function useDashboardController({
       showToast('هذا المظهر متاح في الباقات الأعلى 🔒');
       return;
     }
-    const chosenTheme = getMenuThemeById(presetId);
+    const effectiveMode = resolveEffectiveThemeMode(menuThemeMode);
+    const chosenTheme = getMenuThemeById(presetId, effectiveMode);
     setMenuThemePreset(chosenTheme.id);
-    setMenuThemeMode(chosenTheme.mode);
     if (!resolvedPlan.perms.customColors) {
       setRestColor(chosenTheme.brand);
       setRestBgColor('');
@@ -1919,13 +1928,25 @@ function useDashboardController({
     const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
     putItem<Restaurant>(`restaurants/${rid}`, {
       ...latestRest,
-      themeMode: chosenTheme.mode,
+      themeMode: menuThemeMode,
       themePreset: chosenTheme.id,
       color: resolvedPlan.perms.customColors ? restColor : chosenTheme.brand,
       bgColor: resolvedPlan.perms.customColors ? (restBgColor.trim() || undefined) : undefined,
     });
     onRefresh();
-    showToast(`تم تطبيق مظهر "${chosenTheme.name}" على المنيو ✓`);
+    showToast(`تم تطبيق ألوان "${chosenTheme.name}" على المنيو ✓`);
+  };
+
+  const handleSelectThemeShape = (shapeId: MenuThemeShape) => {
+    setMenuThemeShape(shapeId);
+    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
+    putItem<Restaurant>(`restaurants/${rid}`, {
+      ...latestRest,
+      themeShape: shapeId,
+    });
+    onRefresh();
+    const shapeDef = MENU_SHAPES.find((s) => s.id === shapeId);
+    showToast(`تم تطبيق شكل "${shapeDef?.name || shapeId}" على المنيو ✓`);
   };
 
   const handleCurrencyChange = (nextCurrency: string) => {
@@ -2003,6 +2024,7 @@ function useDashboardController({
           themeMode: menuThemeMode,
           ...(latestRest.dashboardThemeMode ? { dashboardThemeMode } : {}),
           themePreset: chosenTheme.id,
+          themeShape: menuThemeShape,
           color: resolvedPlan.perms.customColors ? (restColor.trim() || chosenTheme.brand) : chosenTheme.brand,
           bgColor: resolvedPlan.perms.customColors ? (restBgColor.trim() || undefined) : undefined,
           n: restName.trim() || latestRest.n,
@@ -2287,6 +2309,8 @@ function useDashboardController({
     handleSelectDashboardThemeMode,
     menuThemePreset,
     handleSelectMenuTheme,
+    menuThemeShape,
+    handleSelectThemeShape,
     restColor,
     setRestColor,
     restBgColor,

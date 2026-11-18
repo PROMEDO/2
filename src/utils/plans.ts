@@ -6,12 +6,7 @@
 import { PlanComparisonItemConfig, PlanFeaturesMap, PricingPlan, Restaurant } from '../types';
 import { AddonKey } from '../data/addonsCatalog';
 
-export interface MenuThemeDefinition {
-  id: string;
-  name: string;
-  subtitle: string;
-  category?: 'classic' | 'girly' | 'cyber';
-  mode: 'dark' | 'light';
+export interface MenuThemePalette {
   brand: string;
   accent?: string;
   bg: string;
@@ -20,8 +15,57 @@ export interface MenuThemeDefinition {
   text: string;
   muted: string;
   line: string;
-  minTierIndex: number; // 0-1 = Starter (4), 2 = Pro (7), 3 = VIP (all 10)
 }
+
+export interface MenuThemeDefinition extends MenuThemePalette {
+  id: string;
+  name: string;
+  subtitle: string;
+  category?: 'classic' | 'girly' | 'cyber';
+  mode: 'dark' | 'light';
+  minTierIndex: number; // 0-1 = Starter (4), 2 = Pro (7), 3 = VIP (all 10)
+  lightPalette: MenuThemePalette;
+  darkPalette: MenuThemePalette;
+}
+
+export interface MenuShapeDefinition {
+  id: 'modern' | 'glass' | 'pill' | 'sharp' | 'bordered' | 'soft';
+  name: string;
+  subtitle: string;
+}
+
+export const MENU_SHAPES: MenuShapeDefinition[] = [
+  {
+    id: 'modern',
+    name: 'عصري ناعم',
+    subtitle: 'زوايا متوازنة وظلال مريحة لكل المشاريع',
+  },
+  {
+    id: 'glass',
+    name: 'زجاجي شفاف',
+    subtitle: 'بطاقات ضبابية شفافة بإضاءة عصرية جذابة',
+  },
+  {
+    id: 'pill',
+    name: 'دائري مرن',
+    subtitle: 'انحناءات ناعمة وأزرار دائرية بطابع حيوي',
+  },
+  {
+    id: 'sharp',
+    name: 'هندسي حاد',
+    subtitle: 'زوايا مستقيمة وإطارات مرتبة بطابع فاخر',
+  },
+  {
+    id: 'bordered',
+    name: 'إطار بارز',
+    subtitle: 'حدود واضحة وتباين ملموس للبطاقات',
+  },
+  {
+    id: 'soft',
+    name: 'منقوش هادئ',
+    subtitle: 'خلفية بنقاط هندسية خفيفة وبطاقات ناعمة',
+  },
+];
 
 export function getContrastInk(hex: string): string {
   const clean = String(hex || '').replace('#', '').trim();
@@ -37,8 +81,8 @@ export function getContrastInk(hex: string): string {
 export const MENU_THEMES: MenuThemeDefinition[] = [
   {
     id: 'emerald-dark',
-    name: 'الزمرد الداكن الكلاسيكي',
-    subtitle: 'أساسي داكن أنيق ومريح للعين',
+    name: 'الزمرد الكلاسيكي',
+    subtitle: 'أخضر زمردي متوازن ومريح للعين',
     category: 'classic',
     mode: 'dark',
     brand: '#10B981',
@@ -50,15 +94,35 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#94a3b8',
     line: 'rgba(16, 185, 129, 0.22)',
     minTierIndex: 0,
+    darkPalette: {
+      brand: '#10B981',
+      accent: '#34D399',
+      bg: '#08100d',
+      surface: '#0e1915',
+      surfaceSoft: '#13241e',
+      text: '#f8fafc',
+      muted: '#94a3b8',
+      line: 'rgba(16, 185, 129, 0.22)',
+    },
+    lightPalette: {
+      brand: '#059669',
+      accent: '#10B981',
+      bg: '#f2f7f5',
+      surface: '#ffffff',
+      surfaceSoft: '#e4f2ec',
+      text: '#0f172a',
+      muted: '#475569',
+      line: 'rgba(5, 150, 105, 0.16)',
+    },
   },
   {
     id: 'clean-light',
-    name: 'الأبيض النقي العصري',
-    subtitle: 'أساسي فاتح ناصع وواضح لكل المشاريع',
+    name: 'الأبيض والرمادي النقي',
+    subtitle: 'تصميم نقي وبسيط واضح لكل الأصناف',
     category: 'classic',
     mode: 'light',
-    brand: '#059669',
-    accent: '#10B981',
+    brand: '#0F766E',
+    accent: '#14B8A6',
     bg: '#f4f7f6',
     surface: '#ffffff',
     surfaceSoft: '#eaf2ee',
@@ -66,10 +130,30 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#475569',
     line: 'rgba(15, 23, 42, 0.11)',
     minTierIndex: 0,
+    lightPalette: {
+      brand: '#0F766E',
+      accent: '#14B8A6',
+      bg: '#f4f7f6',
+      surface: '#ffffff',
+      surfaceSoft: '#eaf2ee',
+      text: '#0f172a',
+      muted: '#475569',
+      line: 'rgba(15, 23, 42, 0.11)',
+    },
+    darkPalette: {
+      brand: '#14B8A6',
+      accent: '#2DD4BF',
+      bg: '#0b1014',
+      surface: '#121920',
+      surfaceSoft: '#19232d',
+      text: '#f8fafc',
+      muted: '#94a3b8',
+      line: 'rgba(148, 163, 184, 0.18)',
+    },
   },
   {
     id: 'royal-amber',
-    name: 'العنبر الملكي والبرونز',
+    name: 'العنبر الملكي الذهبي',
     subtitle: 'فخامة دافئة للمطاعم والمشويات والكافيهات',
     category: 'classic',
     mode: 'dark',
@@ -82,11 +166,31 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#d6d3d1',
     line: 'rgba(245, 158, 11, 0.25)',
     minTierIndex: 1,
+    darkPalette: {
+      brand: '#F59E0B',
+      accent: '#FBBF24',
+      bg: '#120d08',
+      surface: '#1c140c',
+      surfaceSoft: '#281d12',
+      text: '#fafaf9',
+      muted: '#d6d3d1',
+      line: 'rgba(245, 158, 11, 0.25)',
+    },
+    lightPalette: {
+      brand: '#D97706',
+      accent: '#F59E0B',
+      bg: '#fdf8f0',
+      surface: '#ffffff',
+      surfaceSoft: '#fef0d7',
+      text: '#291e12',
+      muted: '#78624b',
+      line: 'rgba(217, 119, 6, 0.18)',
+    },
   },
   {
     id: 'cream-espresso',
     name: 'كريم إسبريسو دافئ',
-    subtitle: 'مظهر فاتح أنيق للمقاهي والمخبوزات',
+    subtitle: 'درجات القهوة الدافئة للمقاهي والمخبوزات',
     category: 'classic',
     mode: 'light',
     brand: '#92400E',
@@ -98,11 +202,31 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#6b5e54',
     line: 'rgba(146, 64, 14, 0.16)',
     minTierIndex: 1,
+    lightPalette: {
+      brand: '#92400E',
+      accent: '#B45309',
+      bg: '#faf6f0',
+      surface: '#ffffff',
+      surfaceSoft: '#f2e8dc',
+      text: '#292524',
+      muted: '#6b5e54',
+      line: 'rgba(146, 64, 14, 0.16)',
+    },
+    darkPalette: {
+      brand: '#D97706',
+      accent: '#F59E0B',
+      bg: '#140f0c',
+      surface: '#1f1713',
+      surfaceSoft: '#2b201a',
+      text: '#faf5f0',
+      muted: '#c7b8ae',
+      line: 'rgba(217, 119, 6, 0.22)',
+    },
   },
   {
     id: 'sakura-strawberry',
     name: 'حليب الفراولة والساكورا 🌸',
-    subtitle: 'بناتي لطيف وأنيق للحلويات والورود والعطور',
+    subtitle: 'وردي أنيق للحلويات والورود والعطور',
     category: 'girly',
     mode: 'light',
     brand: '#EC4899',
@@ -114,11 +238,31 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#834b67',
     line: 'rgba(236, 72, 153, 0.2)',
     minTierIndex: 2,
+    lightPalette: {
+      brand: '#EC4899',
+      accent: '#F472B6',
+      bg: '#fff5f8',
+      surface: '#ffffff',
+      surfaceSoft: '#ffe4ef',
+      text: '#3b0724',
+      muted: '#834b67',
+      line: 'rgba(236, 72, 153, 0.2)',
+    },
+    darkPalette: {
+      brand: '#F472B6',
+      accent: '#F9A8D4',
+      bg: '#160911',
+      surface: '#22101a',
+      surfaceSoft: '#301725',
+      text: '#fff1f7',
+      muted: '#dba9c1',
+      line: 'rgba(244, 114, 182, 0.24)',
+    },
   },
   {
     id: 'lavender-dream',
     name: 'حلم اللافندر الباستيل 💜',
-    subtitle: 'مظهر لطيف ناعم لمحلات التجميل والكافيهات',
+    subtitle: 'بنفسجي ناعم لمحلات التجميل والكافيهات',
     category: 'girly',
     mode: 'light',
     brand: '#8B5CF6',
@@ -130,11 +274,31 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#6b5b95',
     line: 'rgba(139, 92, 246, 0.18)',
     minTierIndex: 2,
+    lightPalette: {
+      brand: '#8B5CF6',
+      accent: '#A78BFA',
+      bg: '#f7f4ff',
+      surface: '#ffffff',
+      surfaceSoft: '#ede9fe',
+      text: '#2e1065',
+      muted: '#6b5b95',
+      line: 'rgba(139, 92, 246, 0.18)',
+    },
+    darkPalette: {
+      brand: '#A78BFA',
+      accent: '#C4B5FD',
+      bg: '#0f0b1a',
+      surface: '#181229',
+      surfaceSoft: '#221a38',
+      text: '#f5f3ff',
+      muted: '#bfb5e3',
+      line: 'rgba(167, 139, 250, 0.24)',
+    },
   },
   {
     id: 'rose-gold-glam',
     name: 'روز غولد والكشمير ✨',
-    subtitle: 'فخامة أنثوية داكنة بلمعة ذهبية وردية',
+    subtitle: 'فخامة مرجانية ناعمة بلمعة راقية',
     category: 'girly',
     mode: 'dark',
     brand: '#FB7185',
@@ -146,11 +310,31 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#e4b8c7',
     line: 'rgba(251, 113, 133, 0.26)',
     minTierIndex: 2,
+    darkPalette: {
+      brand: '#FB7185',
+      accent: '#FDA4AF',
+      bg: '#160d12',
+      surface: '#22141c',
+      surfaceSoft: '#301b27',
+      text: '#fff1f5',
+      muted: '#e4b8c7',
+      line: 'rgba(251, 113, 133, 0.26)',
+    },
+    lightPalette: {
+      brand: '#E11D48',
+      accent: '#FB7185',
+      bg: '#fff4f6',
+      surface: '#ffffff',
+      surfaceSoft: '#ffe4e8',
+      text: '#3b0b18',
+      muted: '#884f5e',
+      line: 'rgba(225, 29, 72, 0.16)',
+    },
   },
   {
     id: 'cyber-neon-matrix',
     name: 'سايبر نيون ماتريكس ⚡',
-    subtitle: 'إضاءة نيون خضراء جريئة لمحلات الألعاب والبرجر',
+    subtitle: 'إضاءة نيون خضراء جريئة للبرجر والألعاب',
     category: 'cyber',
     mode: 'dark',
     brand: '#22C55E',
@@ -162,11 +346,31 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#94a3b8',
     line: 'rgba(0, 245, 160, 0.28)',
     minTierIndex: 3,
+    darkPalette: {
+      brand: '#22C55E',
+      accent: '#00F5A0',
+      bg: '#05080b',
+      surface: '#0b1218',
+      surfaceSoft: '#111d26',
+      text: '#f0fdf4',
+      muted: '#94a3b8',
+      line: 'rgba(0, 245, 160, 0.28)',
+    },
+    lightPalette: {
+      brand: '#16A34A',
+      accent: '#22C55E',
+      bg: '#f0fdf4',
+      surface: '#ffffff',
+      surfaceSoft: '#dcfce7',
+      text: '#052e16',
+      muted: '#3f6250',
+      line: 'rgba(22, 163, 74, 0.2)',
+    },
   },
   {
     id: 'synthwave-violet',
     name: 'سايبر سينثويف البنفسجي 👾',
-    subtitle: 'طابع مستقبلي فريد بدرجات الأرجواني والفوشيا',
+    subtitle: 'طابع مستقبلي فريد بدرجات الفوشيا',
     category: 'cyber',
     mode: 'dark',
     brand: '#D946EF',
@@ -178,11 +382,31 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#c4b5fd',
     line: 'rgba(217, 70, 239, 0.28)',
     minTierIndex: 3,
+    darkPalette: {
+      brand: '#D946EF',
+      accent: '#F0ABFC',
+      bg: '#0b0616',
+      surface: '#140b27',
+      surfaceSoft: '#1f113b',
+      text: '#fdf4ff',
+      muted: '#c4b5fd',
+      line: 'rgba(217, 70, 239, 0.28)',
+    },
+    lightPalette: {
+      brand: '#C026D3',
+      accent: '#D946EF',
+      bg: '#fdf4ff',
+      surface: '#ffffff',
+      surfaceSoft: '#fae8ff',
+      text: '#3b0764',
+      muted: '#7c5394',
+      line: 'rgba(192, 38, 211, 0.18)',
+    },
   },
   {
     id: 'cyber-cyan-obsidian',
-    name: 'سايبر سيان أوبسيديان 💠',
-    subtitle: 'هوية سايبر عالية التقنية للأجهزة والإلكترونيات',
+    name: 'سايبر سيان السماوي 💠',
+    subtitle: 'هوية تقنية حديثة بالأزرق السماوي',
     category: 'cyber',
     mode: 'dark',
     brand: '#06B6D4',
@@ -194,6 +418,26 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
     muted: '#93c5fd',
     line: 'rgba(34, 211, 238, 0.28)',
     minTierIndex: 3,
+    darkPalette: {
+      brand: '#06B6D4',
+      accent: '#22D3EE',
+      bg: '#040b12',
+      surface: '#0a1624',
+      surfaceSoft: '#102236',
+      text: '#ecfeff',
+      muted: '#93c5fd',
+      line: 'rgba(34, 211, 238, 0.28)',
+    },
+    lightPalette: {
+      brand: '#0284C7',
+      accent: '#0EA5E9',
+      bg: '#f0f9ff',
+      surface: '#ffffff',
+      surfaceSoft: '#e0f2fe',
+      text: '#082f49',
+      muted: '#4b6b84',
+      line: 'rgba(2, 132, 199, 0.18)',
+    },
   },
 ];
 
@@ -845,24 +1089,34 @@ export function getAllowedLayoutsCount(resolved: ResolvedPlanInfo): number {
   return 3; // Pro & VIP: all layouts (grid3, grid, list)
 }
 
+export function resolveMenuThemeEffectiveMode(mode?: 'dark' | 'light' | 'auto'): 'dark' | 'light' {
+  if (mode === 'auto') {
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
+      return 'dark';
+    }
+    return 'light';
+  }
+  return mode === 'dark' ? 'dark' : 'light';
+}
+
 export function getMenuThemeById(presetId?: string, mode?: 'dark' | 'light' | 'auto'): MenuThemeDefinition {
   const effectiveMode: 'dark' | 'light' | undefined =
-    mode === 'auto'
-      ? typeof window !== 'undefined' &&
-        typeof window.matchMedia === 'function' &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light'
-      : mode;
+    mode ? resolveMenuThemeEffectiveMode(mode) : undefined;
 
-  if (presetId) {
-    const found = MENU_THEMES.find((t) => t.id === presetId);
-    if (found && (mode !== 'auto' || found.mode === effectiveMode)) {
-      return found;
-    }
-  }
-  if (effectiveMode === 'dark') {
-    return MENU_THEMES[0];
-  }
-  return MENU_THEMES[1];
+  const base =
+    (presetId ? MENU_THEMES.find((t) => t.id === presetId) : undefined) ||
+    (effectiveMode === 'dark' ? MENU_THEMES[0] : MENU_THEMES[1]);
+
+  const targetMode: 'dark' | 'light' = effectiveMode || base.mode;
+  const palette = targetMode === 'dark' ? base.darkPalette : base.lightPalette;
+
+  return {
+    ...base,
+    ...palette,
+    mode: targetMode,
+  };
 }

@@ -39,6 +39,7 @@ import {
   MenuItemBadge,
   MenuItemExtra,
   MenuItemSize,
+  MenuThemeShape,
   Order,
   OrderItem,
   OrderType,
@@ -329,6 +330,14 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
     table: { label: terms.dineInOrBranchNote, icon: <Utensils size={15} /> },
   };
   const activeTheme = getMenuThemeById(rest?.themePreset, rest?.themeMode);
+  const activeShape: MenuThemeShape =
+    rest?.themeShape === 'glass' ||
+    rest?.themeShape === 'pill' ||
+    rest?.themeShape === 'sharp' ||
+    rest?.themeShape === 'bordered' ||
+    rest?.themeShape === 'soft'
+      ? rest.themeShape
+      : 'modern';
   const isLightMenu = activeTheme.mode === 'light';
   const currency = rest?.currency || 'د.ع';
   const brandColor = resolvedPlan.perms.customColors && rest?.color ? rest.color : activeTheme.brand;
@@ -403,7 +412,9 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
     upsertMeta('name', 'description', desc);
     upsertMeta('property', 'og:title', title);
     upsertMeta('property', 'og:description', desc);
-    if (rest.logo) upsertMeta('property', 'og:image', rest.logo);
+    const embedIconUrl = `${window.location.origin}/assets/aistudio/icon_f95f5a07.png`;
+    upsertMeta('property', 'og:image', embedIconUrl);
+    upsertMeta('name', 'twitter:image', embedIconUrl);
 
     const canonicalUrl = `${window.location.origin}${window.location.pathname}`;
     let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
@@ -1417,6 +1428,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
   return (
     <div
       className={`pm-page ${isLightMenu ? 'pm-light' : ''}`}
+      data-shape={activeShape}
       dir={isRtl ? 'rtl' : 'ltr'}
       style={{
         '--pm-brand': brandColor,
