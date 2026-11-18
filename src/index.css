@@ -7921,8 +7921,8 @@ html[data-theme="dark"] .mp-items-count-box {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 160px;
-  padding-bottom: 64px;
+  gap: 80px;
+  padding-bottom: 32px;
 }
 
 .mp-appearance-bottom-save {
@@ -8887,7 +8887,7 @@ html[data-theme="dark"] .mp-items-count-box {
 
 @media (max-width: 640px) {
   .mp-appearance-page {
-    gap: 140px;
+    gap: 70px;
   }
 
   .mp-appearance-top-bar {
