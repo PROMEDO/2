@@ -501,6 +501,14 @@ function useDashboardController({
     setActiveTabState(resolveTabFromSub(initialSubTab));
   }, [initialSubTab]);
 
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('mp_last_dash_path', getDashboardTabPath(activeTab));
+    } catch {
+      // ignore storage errors
+    }
+  }, [activeTab]);
+
   const setActiveTab = (tab: DashboardTab) => {
     setActiveTabState(tab);
     onNavigate(getDashboardTabPath(tab));
@@ -924,7 +932,13 @@ function useDashboardController({
     resolveDashboardPref(rest)
   );
   const normalizeShapeChoice = (raw?: string): MenuThemeShape =>
-    raw === 'glass' || raw === 'pill' || raw === 'sharp' || raw === 'bordered' || raw === 'soft'
+    raw === 'glass' ||
+    raw === 'cartoon' ||
+    raw === 'dreamy' ||
+    raw === 'pill' ||
+    raw === 'sharp' ||
+    raw === 'bordered' ||
+    raw === 'soft'
       ? raw
       : 'modern';
   const [menuThemePreset, setMenuThemePreset] = useState<string>(() =>
@@ -1002,7 +1016,11 @@ function useDashboardController({
     setSelectedLayout(isLayoutAllowed(candidateLay) ? candidateLay : 'list');
     setMenuThemeMode(rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light');
     setDashboardThemeMode(resolveDashboardPref(rest));
-    setMenuThemePreset(rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light'));
+    setMenuThemePreset(
+      rest.themePreset === 'custom'
+        ? 'custom'
+        : rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light')
+    );
     setMenuThemeShape(normalizeShapeChoice(rest.themeShape));
     setRestColor(rest.color || '#059669');
     setRestBgColor(rest.bgColor || '');
@@ -1864,15 +1882,17 @@ function useDashboardController({
       return;
     }
     const effectiveMode = resolveEffectiveThemeMode(mode);
+    const isCustom = menuThemePreset === 'custom' && resolvedPlan.perms.customColors;
     const allowed = getAllowedThemesForPlan(resolvedPlan);
-    const nextPreset =
-      allowed.some((t) => t.id === menuThemePreset)
-        ? menuThemePreset
-        : allowed[0]?.id || (effectiveMode === 'light' ? 'clean-light' : 'emerald-dark');
-    const chosenTheme = getMenuThemeById(nextPreset, effectiveMode);
+    const nextPreset = isCustom
+      ? 'custom'
+      : allowed.some((t) => t.id === menuThemePreset)
+      ? menuThemePreset
+      : allowed[0]?.id || (effectiveMode === 'light' ? 'clean-light' : 'emerald-dark');
+    const chosenTheme = getMenuThemeById(nextPreset === 'custom' ? undefined : nextPreset, effectiveMode);
     setMenuThemeMode(mode);
-    setMenuThemePreset(chosenTheme.id);
-    if (!resolvedPlan.perms.customColors) {
+    setMenuThemePreset(isCustom ? 'custom' : chosenTheme.id);
+    if (!isCustom) {
       setRestColor(chosenTheme.brand);
       setRestBgColor('');
     }
@@ -1880,9 +1900,9 @@ function useDashboardController({
     putItem<Restaurant>(`restaurants/${rid}`, {
       ...latestRest,
       themeMode: mode,
-      themePreset: chosenTheme.id,
-      color: resolvedPlan.perms.customColors ? restColor : chosenTheme.brand,
-      bgColor: resolvedPlan.perms.customColors ? (restBgColor.trim() || undefined) : undefined,
+      themePreset: isCustom ? 'custom' : chosenTheme.id,
+      color: isCustom ? restColor : chosenTheme.brand,
+      bgColor: isCustom ? (restBgColor.trim() || undefined) : undefined,
     });
     onRefresh();
     showToast(
@@ -1913,6 +1933,28 @@ function useDashboardController({
   };
 
   const handleSelectMenuTheme = (presetId: string) => {
+    if (presetId === 'custom') {
+      if (!resolvedPlan.perms.customColors) {
+        openUpgradeModal('vip');
+        return;
+      }
+      const nextBrand = restColor.trim() || '#10B981';
+      const nextBg = restBgColor.trim();
+      setMenuThemePreset('custom');
+      setRestColor(nextBrand);
+      const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
+      putItem<Restaurant>(`restaurants/${rid}`, {
+        ...latestRest,
+        themeMode: menuThemeMode,
+        themePreset: 'custom',
+        color: nextBrand,
+        bgColor: nextBg || undefined,
+      });
+      onRefresh();
+      showToast('تم تفعيل الألوان المخصصة على المنيو ✓');
+      return;
+    }
+
     const allowed = getAllowedThemesForPlan(resolvedPlan);
     if (!allowed.some((t) => t.id === presetId)) {
       showToast('هذا المظهر متاح في الباقات الأعلى 🔒');
@@ -1921,20 +1963,39 @@ function useDashboardController({
     const effectiveMode = resolveEffectiveThemeMode(menuThemeMode);
     const chosenTheme = getMenuThemeById(presetId, effectiveMode);
     setMenuThemePreset(chosenTheme.id);
-    if (!resolvedPlan.perms.customColors) {
-      setRestColor(chosenTheme.brand);
-      setRestBgColor('');
-    }
+    setRestColor(chosenTheme.brand);
+    setRestBgColor('');
     const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
     putItem<Restaurant>(`restaurants/${rid}`, {
       ...latestRest,
       themeMode: menuThemeMode,
       themePreset: chosenTheme.id,
-      color: resolvedPlan.perms.customColors ? restColor : chosenTheme.brand,
-      bgColor: resolvedPlan.perms.customColors ? (restBgColor.trim() || undefined) : undefined,
+      color: chosenTheme.brand,
+      bgColor: undefined,
     });
     onRefresh();
     showToast(`تم تطبيق ألوان "${chosenTheme.name}" على المنيو ✓`);
+  };
+
+  const handleUpdateCustomColors = (nextBrand?: string, nextBg?: string) => {
+    if (!resolvedPlan.perms.customColors) {
+      openUpgradeModal('vip');
+      return;
+    }
+    const resolvedBrand = (nextBrand !== undefined ? nextBrand : restColor).trim() || '#10B981';
+    const resolvedBg = nextBg !== undefined ? nextBg.trim() : restBgColor.trim();
+    setMenuThemePreset('custom');
+    if (nextBrand !== undefined) setRestColor(resolvedBrand);
+    if (nextBg !== undefined) setRestBgColor(resolvedBg);
+    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
+    putItem<Restaurant>(`restaurants/${rid}`, {
+      ...latestRest,
+      themeMode: menuThemeMode,
+      themePreset: 'custom',
+      color: resolvedBrand,
+      bgColor: resolvedBg || undefined,
+    });
+    onRefresh();
   };
 
   const handleSelectThemeShape = (shapeId: MenuThemeShape) => {
@@ -2015,7 +2076,8 @@ function useDashboardController({
               cities: nestedCities.length > 0 ? nestedCities : [{ name: areaLabel, fee: baseFee }],
             };
           });
-        const chosenTheme = getMenuThemeById(menuThemePreset, menuThemeMode);
+        const isCustomTheme = menuThemePreset === 'custom' && resolvedPlan.perms.customColors;
+        const chosenTheme = getMenuThemeById(isCustomTheme ? undefined : menuThemePreset, menuThemeMode);
         const firstOpenDay = WEEK_DAYS_ORDER.map((d) => weeklyHours[d.key]).find((d) => d?.open);
         const updatedPayload: Restaurant = {
           ...latestRest,
@@ -2023,10 +2085,10 @@ function useDashboardController({
           lay: isLayoutAllowed(selectedLayout) ? selectedLayout : 'list',
           themeMode: menuThemeMode,
           ...(latestRest.dashboardThemeMode ? { dashboardThemeMode } : {}),
-          themePreset: chosenTheme.id,
+          themePreset: isCustomTheme ? 'custom' : chosenTheme.id,
           themeShape: menuThemeShape,
-          color: resolvedPlan.perms.customColors ? (restColor.trim() || chosenTheme.brand) : chosenTheme.brand,
-          bgColor: resolvedPlan.perms.customColors ? (restBgColor.trim() || undefined) : undefined,
+          color: isCustomTheme ? (restColor.trim() || chosenTheme.brand) : chosenTheme.brand,
+          bgColor: isCustomTheme ? (restBgColor.trim() || undefined) : undefined,
           n: restName.trim() || latestRest.n,
           tagline: restTagline.trim(),
           aboutText: aboutTextInput.trim(),
@@ -2309,6 +2371,7 @@ function useDashboardController({
     handleSelectDashboardThemeMode,
     menuThemePreset,
     handleSelectMenuTheme,
+    handleUpdateCustomColors,
     menuThemeShape,
     handleSelectThemeShape,
     restColor,

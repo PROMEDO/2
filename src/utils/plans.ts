@@ -29,7 +29,7 @@ export interface MenuThemeDefinition extends MenuThemePalette {
 }
 
 export interface MenuShapeDefinition {
-  id: 'modern' | 'glass' | 'pill' | 'sharp' | 'bordered' | 'soft';
+  id: 'modern' | 'glass' | 'cartoon' | 'dreamy' | 'pill' | 'sharp' | 'bordered' | 'soft';
   name: string;
   subtitle: string;
 }
@@ -38,32 +38,42 @@ export const MENU_SHAPES: MenuShapeDefinition[] = [
   {
     id: 'modern',
     name: 'عصري ناعم',
-    subtitle: 'زوايا متوازنة وظلال مريحة لكل المشاريع',
+    subtitle: 'زوايا متوازنة وظلال مريحة لكل الصفحة والبطاقات',
   },
   {
     id: 'glass',
     name: 'زجاجي شفاف',
-    subtitle: 'بطاقات ضبابية شفافة بإضاءة عصرية جذابة',
+    subtitle: 'ألواح زجاجية ضبابية وإضاءة عصرية للبنر والبطاقات',
+  },
+  {
+    id: 'cartoon',
+    name: 'رسوم',
+    subtitle: 'حواف كرتونية جريئة وظل بارز ونمط منقط مرح',
+  },
+  {
+    id: 'dreamy',
+    name: 'أحلام',
+    subtitle: 'هالة حالمة متوهجة وزوايا سحابية ناعمة لكل الصفحة',
   },
   {
     id: 'pill',
     name: 'دائري مرن',
-    subtitle: 'انحناءات ناعمة وأزرار دائرية بطابع حيوي',
+    subtitle: 'صورة دائرية وانحناءات كبسولية انسيابية لكل العناصر',
   },
   {
     id: 'sharp',
     name: 'هندسي حاد',
-    subtitle: 'زوايا مستقيمة وإطارات مرتبة بطابع فاخر',
+    subtitle: 'زوايا حادة وإطارات معمارية مرتبة بطابع فاخر',
   },
   {
     id: 'bordered',
     name: 'إطار بارز',
-    subtitle: 'حدود واضحة وتباين ملموس للبطاقات',
+    subtitle: 'إطارات مزدوجة وحواف ثلاثية الأبعاد واضحة ومميزة',
   },
   {
     id: 'soft',
-    name: 'منقوش هادئ',
-    subtitle: 'خلفية بنقاط هندسية خفيفة وبطاقات ناعمة',
+    name: 'منقوش ناعم',
+    subtitle: 'خلفية بنقاط هندسية وبطاقات بارزة بلا حدود حادة',
   },
 ];
 

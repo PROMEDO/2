@@ -6,6 +6,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
+  ArrowRight,
   Calendar,
   Check,
   ChevronDown,
@@ -332,21 +333,59 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
   const activeTheme = getMenuThemeById(rest?.themePreset, rest?.themeMode);
   const activeShape: MenuThemeShape =
     rest?.themeShape === 'glass' ||
+    rest?.themeShape === 'cartoon' ||
+    rest?.themeShape === 'dreamy' ||
     rest?.themeShape === 'pill' ||
     rest?.themeShape === 'sharp' ||
     rest?.themeShape === 'bordered' ||
     rest?.themeShape === 'soft'
       ? rest.themeShape
       : 'modern';
-  const isLightMenu = activeTheme.mode === 'light';
+  const isCustomPreset = rest?.themePreset === 'custom' && resolvedPlan.perms.customColors;
   const currency = rest?.currency || 'د.ع';
   const brandColor = resolvedPlan.perms.customColors && rest?.color ? rest.color : activeTheme.brand;
   const customBgColor =
-    rest?.themeMode === 'auto'
+    isCustomPreset && rest?.bgColor
+      ? rest.bgColor
+      : rest?.themeMode === 'auto'
       ? activeTheme.bg
       : resolvedPlan.perms.customColors && rest?.bgColor
       ? rest.bgColor
       : activeTheme.bg;
+  const isLightMenu =
+    isCustomPreset && rest?.bgColor
+      ? getContrastInk(rest.bgColor) === '#0f172a'
+      : activeTheme.mode === 'light';
+  const effectiveSurface =
+    isCustomPreset && rest?.bgColor
+      ? isLightMenu
+        ? `color-mix(in srgb, ${customBgColor} 35%, #ffffff)`
+        : `color-mix(in srgb, ${customBgColor} 80%, #ffffff)`
+      : activeTheme.surface;
+  const effectiveSurfaceSoft =
+    isCustomPreset && rest?.bgColor
+      ? isLightMenu
+        ? `color-mix(in srgb, ${customBgColor} 88%, #0f172a)`
+        : `color-mix(in srgb, ${customBgColor} 88%, #ffffff)`
+      : activeTheme.surfaceSoft;
+  const effectiveInk =
+    isCustomPreset && rest?.bgColor
+      ? isLightMenu
+        ? '#0f172a'
+        : '#f8fafc'
+      : activeTheme.text;
+  const effectiveMuted =
+    isCustomPreset && rest?.bgColor
+      ? isLightMenu
+        ? '#475569'
+        : '#94a3b8'
+      : activeTheme.muted;
+  const effectiveLine =
+    isCustomPreset && rest?.bgColor
+      ? isLightMenu
+        ? 'rgba(15, 23, 42, 0.14)'
+        : 'rgba(255, 255, 255, 0.15)'
+      : activeTheme.line;
   const accentText = isLightMenu ? brandColor : getReadableAccent(brandColor);
   const brandInk = getContrastInk(brandColor);
 
@@ -706,11 +745,10 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
   const [revRate, setRevRate] = useState(5);
   const [revComment, setRevComment] = useState('');
 
-  // Only show owner controls if strictly logged in as the specific restaurant owner and not a public customer or demo visitor
+  // Only show owner controls if logged in as the menu owner (including demo/admin previewing their menu)
   const isOwner = Boolean(
     session &&
-    restaurantId !== 'demo' &&
-    (session.admin || session.rid === restaurantId)
+    (session.admin || session.rid === restaurantId || session.personalRid === restaurantId)
   );
 
   if (!rest || (rest.a === 0 && !isOwner)) {
@@ -1435,13 +1473,13 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         '--brand': brandColor,
         '--pm-on-brand': brandInk,
         '--pm-bg': customBgColor,
-        '--pm-card': activeTheme.surface,
-        '--pm-soft': activeTheme.surfaceSoft,
-        '--pm-ink': activeTheme.text,
-        '--pm-muted': activeTheme.muted,
-        '--pm-line': activeTheme.line,
+        '--pm-card': effectiveSurface,
+        '--pm-soft': effectiveSurfaceSoft,
+        '--pm-ink': effectiveInk,
+        '--pm-muted': effectiveMuted,
+        '--pm-line': effectiveLine,
         backgroundColor: customBgColor,
-        color: activeTheme.text,
+        color: effectiveInk,
       } as React.CSSProperties}
     >
       {/* Announcement Bar Addon */}
@@ -1460,8 +1498,35 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         </div>
       )}
 
-      {/* Demo Platform Top Notice Bar */}
-      {restaurantId === 'demo' && (
+      {/* Owner Preview Top Bar: ONLY 'عد للتعديل' button */}
+      {isOwner && (
+        <div className="pm-owner-preview-bar">
+          <button
+            type="button"
+            className="pm-owner-back-btn"
+            style={{
+              background: brandColor,
+              color: brandInk,
+            }}
+            onClick={() => {
+              let target = '/dashboard/home';
+              try {
+                const saved = window.sessionStorage.getItem('mp_last_dash_path');
+                if (saved && saved.startsWith('/dashboard')) target = saved;
+              } catch {
+                // ignore storage errors
+              }
+              onNavigate(target);
+            }}
+          >
+            <ArrowRight size={15} />
+            <span>عد للتعديل</span>
+          </button>
+        </div>
+      )}
+
+      {/* Demo Platform Top Notice Bar (for public visitors only, hidden for owner) */}
+      {restaurantId === 'demo' && !isOwner && (
         <div
           style={{
             background: 'var(--pm-card)',
@@ -1480,24 +1545,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
             <b>معاينة المنيو التجريبي (كاب برجر)</b> — هكذا يظهر منيو مطعمك للزبائن
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isOwner && (
-              <button
-                type="button"
-                onClick={() => onNavigate('/dashboard/home')}
-                style={{
-                  background: 'var(--pm-soft)',
-                  color: 'var(--pm-ink)',
-                  border: '1px solid var(--pm-line)',
-                  borderRadius: '8px',
-                  padding: '4px 10px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                تعديل التجريبي
-              </button>
-            )}
             <button
               type="button"
               onClick={() => onNavigate('/signup')}
@@ -1558,21 +1605,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isOwner && (
-              <button
-                type="button"
-                className="pm-owner-dash-btn"
-                onClick={() => onNavigate('/dashboard/home')}
-                style={{
-                  border: '1px solid var(--pm-line)',
-                  background: 'var(--pm-soft)',
-                  color: 'var(--pm-ink)',
-                  cursor: 'pointer',
-                }}
-              >
-                {t.dashboard}
-              </button>
-            )}
             <button
               type="button"
               className="pm-icon-btn"
@@ -1636,10 +1668,10 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               </h1>
               <button
                 type="button"
+                className="pm-shape-pill"
                 onClick={() => setWorkModalOpen(true)}
                 style={{
                   border: openNow ? '1px solid rgba(52, 211, 153, 0.36)' : '1px solid rgba(248, 113, 113, 0.36)',
-                  borderRadius: '99px',
                   padding: '3px 10px',
                   fontSize: '11.5px',
                   fontWeight: 700,
@@ -1671,6 +1703,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
             >
               {addons.prepBadge?.enabled && (
                 <span
+                  className="pm-shape-pill"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -1679,7 +1712,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                     border: '1px solid var(--pm-line)',
                     color: 'var(--pm-ink)',
                     padding: '2px 9px',
-                    borderRadius: '99px',
                     fontWeight: 700,
                   }}
                 >
@@ -1688,6 +1720,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               )}
               {addons.deliveryEtaTracker?.enabled && (
                 <span
+                  className="pm-shape-pill"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -1696,7 +1729,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                     border: '1px solid rgba(59, 130, 246, 0.3)',
                     color: isLightMenu ? '#1d4ed8' : '#93C5FD',
                     padding: '2px 9px',
-                    borderRadius: '99px',
                     fontWeight: 700,
                   }}
                 >
@@ -1715,22 +1747,8 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
-            <button
-              type="button"
-              className="pm-icon-btn"
-              onClick={handleShareMenu}
-              title="مشاركة المنيو"
-              aria-label="مشاركة المنيو"
-              style={{
-                color: accentText,
-                borderColor: 'var(--pm-line)',
-                background: 'var(--pm-soft)',
-              }}
-            >
-              <Share2 size={17} />
-            </button>
-            {rest.ph && (
+          {rest.ph && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
               <a
                 href={waLink(rest.ph, `مرحباً ${rest.n}، أود الاستفسار عن المنيو`)}
                 target="_blank"
@@ -1745,19 +1763,19 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               >
                 <MessageCircle size={18} />
               </a>
-            )}
-          </div>
+            </div>
+          )}
         </section>
 
         {/* Closed Pre-order Notice Addon */}
         {addons.closedNotice?.enabled && !openNow && (
           <div
+            className="pm-addon-card"
             style={{
               marginTop: '10px',
               background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.34)',
+              borderColor: 'rgba(245, 158, 11, 0.34)',
               color: isLightMenu ? '#92400e' : '#FCD34D',
-              borderRadius: '14px',
               padding: '9px 12px',
               fontSize: '12.5px',
               fontWeight: 700,
@@ -1774,12 +1792,12 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         {/* Social Proof Badge Addon */}
         {addons.socialProofBadge?.enabled && (
           <div
+            className="pm-addon-card"
             style={{
               marginTop: '10px',
               background: 'rgba(249, 115, 22, 0.12)',
-              border: '1px solid rgba(249, 115, 22, 0.32)',
+              borderColor: 'rgba(249, 115, 22, 0.32)',
               color: isLightMenu ? '#9a3412' : '#FDBA74',
-              borderRadius: '12px',
               padding: '8px 12px',
               fontSize: '12px',
               fontWeight: 800,
@@ -1800,11 +1818,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         {/* Happy Hour Banner Addon */}
         {addons.happyHour?.enabled && activeMenuDiscount.sourceLabel === (addons.happyHour.title || 'ساعة السعادة') && (
           <div
+            className="pm-addon-card"
             style={{
               marginTop: '10px',
               background: 'linear-gradient(135deg, #f59e0b, #d97706)',
               color: '#ffffff',
-              borderRadius: '14px',
               padding: '10px 14px',
               display: 'flex',
               alignItems: 'center',
@@ -1822,12 +1840,10 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         {/* Countdown Timer Addon — Actually Applies Live Discount Across All Prices */}
         {addons.countdownTimer?.enabled && countdownDisplay && (
           <div
+            className="pm-addon-card"
             style={{
               marginTop: '10px',
-              background: 'var(--pm-card)',
-              border: '1px solid var(--pm-line)',
               color: 'var(--pm-ink)',
-              borderRadius: '14px',
               padding: '10px 14px',
               display: 'flex',
               alignItems: 'center',
@@ -1840,11 +1856,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               ⏳ {addons.countdownTimer.title || 'عرض لفترة محدودة'}
               {(addons.countdownTimer.discountValue ?? 0) > 0 && (
                 <span
+                  className="pm-shape-pill"
                   style={{
                     background: '#10b981',
                     color: '#052e16',
                     padding: '2px 8px',
-                    borderRadius: '99px',
                     fontSize: '11.5px',
                     fontWeight: 900,
                     marginInlineStart: '8px',
@@ -1861,13 +1877,12 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
             </div>
             <span
               dir="ltr"
-              className="tabular-nums"
+              className="tabular-nums pm-shape-btn"
               style={{
                 background: brandColor,
                 border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
                 color: brandInk,
                 padding: '4px 10px',
-                borderRadius: '10px',
                 fontSize: '12.5px',
                 fontWeight: 900,
               }}
@@ -1881,6 +1896,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         {addons.quickReorder?.enabled && lastSavedOrderCart.length > 0 && (
           <button
             type="button"
+            className="pm-addon-card"
             onClick={() => {
               const availableLines = lastSavedOrderCart.filter((line) => {
                 const liveItem = allItems.find((it) => it.id === line.itemId);
@@ -1904,10 +1920,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
             style={{
               marginTop: '10px',
               width: '100%',
-              border: '1.5px dashed color-mix(in srgb, var(--pm-brand) 50%, transparent)',
+              borderStyle: 'dashed',
+              borderWidth: '1.5px',
+              borderColor: 'color-mix(in srgb, var(--pm-brand) 50%, transparent)',
               background: 'color-mix(in srgb, var(--pm-brand) 10%, transparent)',
               color: accentText,
-              borderRadius: '14px',
               padding: '9px 12px',
               fontSize: '12.5px',
               fontWeight: 800,
@@ -1935,26 +1952,25 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
           const spPrice = getPriceDisplay(specialDish, currency, activeMenuDiscount, resolvedPlan.perms.itemDiscounts);
           return (
             <div
+              className="pm-addon-card pm-special-card"
               onClick={() => openProductModal(specialDish)}
               style={{
                 marginTop: '10px',
-                background: 'var(--pm-card)',
-                border: '1.5px solid var(--pm-brand)',
-                borderRadius: '16px',
+                borderColor: 'var(--pm-brand)',
                 padding: '10px 12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
                 cursor: 'pointer',
-                boxShadow: isLightMenu ? '0 6px 20px rgba(15,23,42,0.08)' : '0 8px 22px rgba(0,0,0,0.45)',
               }}
             >
               {specialDish.img && (
                 <img
+                  className="pm-special-thumb"
                   src={specialDish.img}
                   alt={specialDish.n}
                   referrerPolicy="no-referrer"
-                  style={{ width: '62px', height: '62px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0 }}
+                  style={{ width: '62px', height: '62px', objectFit: 'cover', flexShrink: 0 }}
                 />
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1978,11 +1994,9 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         {/* Table Service & Waiter Call Addon */}
         {addons.tableService?.enabled && (
           <div
+            className="pm-addon-card"
             style={{
               marginTop: '10px',
-              background: 'var(--pm-card)',
-              border: '1px solid var(--pm-line)',
-              borderRadius: '14px',
               padding: '10px 14px',
               display: 'flex',
               alignItems: 'center',
@@ -1995,11 +2009,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               <Utensils size={16} style={{ color: accentText }} />
               <span>خدمة الطاولة:</span>
               <select
+                className="pm-shape-btn"
                 value={selectedTable || '1'}
                 onChange={(e) => setSelectedTable(e.target.value)}
                 style={{
                   padding: '4px 10px',
-                  borderRadius: '8px',
                   border: '1px solid var(--pm-line)',
                   background: 'var(--pm-soft)',
                   color: 'var(--pm-ink)',
@@ -2020,10 +2034,10 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
             {addons.tableService.allowWaiterCall !== false && (
               <button
                 type="button"
+                className="pm-shape-btn"
                 onClick={handleCallWaiter}
                 style={{
                   border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
-                  borderRadius: '10px',
                   background: brandColor,
                   color: brandInk,
                   padding: '7px 12px',
@@ -2093,17 +2107,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflowX: 'auto', marginTop: '8px', paddingBottom: '2px' }}>
                 <button
                   type="button"
+                  className={`pm-filter-chip ${menuQuickFilter === 'all' ? 'active' : ''}`}
                   onClick={() => setMenuQuickFilter('all')}
                   style={{
-                    border: menuQuickFilter === 'all' ? '1px solid var(--pm-brand)' : '1px solid var(--pm-line)',
-                    background: menuQuickFilter === 'all' ? brandColor : 'var(--pm-soft)',
-                    color: menuQuickFilter === 'all' ? brandInk : 'var(--pm-muted)',
-                    borderRadius: '99px',
-                    padding: '4px 11px',
-                    fontSize: '11.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
+                    background: menuQuickFilter === 'all' ? brandColor : undefined,
+                    color: menuQuickFilter === 'all' ? brandInk : undefined,
                   }}
                 >
                   الكل
@@ -2111,17 +2119,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                 {addons.chefPicksFilter?.enabled && addons.chefPicksFilter.showPopular !== false && (
                   <button
                     type="button"
+                    className={`pm-filter-chip ${menuQuickFilter === 'popular' ? 'active' : ''}`}
                     onClick={() => setMenuQuickFilter('popular')}
                     style={{
-                      border: menuQuickFilter === 'popular' ? '1px solid var(--pm-brand)' : '1px solid var(--pm-line)',
-                      background: menuQuickFilter === 'popular' ? brandColor : 'var(--pm-soft)',
-                      color: menuQuickFilter === 'popular' ? brandInk : 'var(--pm-muted)',
-                      borderRadius: '99px',
-                      padding: '4px 11px',
-                      fontSize: '11.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
+                      background: menuQuickFilter === 'popular' ? brandColor : undefined,
+                      color: menuQuickFilter === 'popular' ? brandInk : undefined,
                     }}
                   >
                     الأكثر طلباً
@@ -2130,17 +2132,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                 {addons.chefPicksFilter?.enabled && addons.chefPicksFilter.showOffers !== false && (
                   <button
                     type="button"
+                    className={`pm-filter-chip ${menuQuickFilter === 'offers' ? 'active' : ''}`}
                     onClick={() => setMenuQuickFilter('offers')}
                     style={{
-                      border: menuQuickFilter === 'offers' ? '1px solid var(--pm-brand)' : '1px solid var(--pm-line)',
-                      background: menuQuickFilter === 'offers' ? brandColor : 'var(--pm-soft)',
-                      color: menuQuickFilter === 'offers' ? brandInk : 'var(--pm-muted)',
-                      borderRadius: '99px',
-                      padding: '4px 11px',
-                      fontSize: '11.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
+                      background: menuQuickFilter === 'offers' ? brandColor : undefined,
+                      color: menuQuickFilter === 'offers' ? brandInk : undefined,
                     }}
                   >
                     العروض المخفضة
@@ -2149,17 +2145,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                 {addons.savedFavorites?.enabled && (
                   <button
                     type="button"
+                    className={`pm-filter-chip ${menuQuickFilter === 'favorites' ? 'active' : ''}`}
                     onClick={() => setMenuQuickFilter('favorites')}
                     style={{
-                      border: menuQuickFilter === 'favorites' ? '1px solid var(--pm-brand)' : '1px solid var(--pm-line)',
-                      background: menuQuickFilter === 'favorites' ? brandColor : 'var(--pm-soft)',
-                      color: menuQuickFilter === 'favorites' ? brandInk : 'var(--pm-muted)',
-                      borderRadius: '99px',
-                      padding: '4px 11px',
-                      fontSize: '11.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
+                      background: menuQuickFilter === 'favorites' ? brandColor : undefined,
+                      color: menuQuickFilter === 'favorites' ? brandInk : undefined,
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
@@ -2177,10 +2167,8 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         <div style={{ marginTop: '14px' }}>
           {allCategories.length === 0 ? (
             <div
+              className="pm-addon-card"
               style={{
-                background: 'var(--pm-card)',
-                border: '1px solid var(--pm-line)',
-                borderRadius: '18px',
                 padding: '44px 18px',
                 textAlign: 'center',
                 color: 'var(--pm-muted)',
@@ -2282,21 +2270,9 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                               {addons.savedFavorites?.enabled && (
                                 <button
                                   type="button"
+                                  className="pm-fav-btn"
                                   aria-label="مفضلة"
                                   onClick={(e) => toggleFavorite(it.id, e)}
-                                  style={{
-                                    position: 'absolute',
-                                    top: '5px',
-                                    insetInlineEnd: '5px',
-                                    width: '22px',
-                                    height: '22px',
-                                    borderRadius: '50%',
-                                    border: '1px solid var(--pm-line)',
-                                    background: 'color-mix(in srgb, var(--pm-card) 86%, transparent)',
-                                    display: 'grid',
-                                    placeItems: 'center',
-                                    cursor: 'pointer',
-                                  }}
                                 >
                                   <Heart size={11} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
                                 </button>
@@ -2359,25 +2335,15 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
 
                               <button
                                 type="button"
+                                className="pm-list-add-btn"
                                 disabled={unavailable}
                                 aria-label={`إضافة ${it.n} للسلة`}
                                 onClick={(e) => quickAddOrOpenModal(it, e)}
                                 style={{
                                   width: unavailable ? 'auto' : '32px',
-                                  height: '32px',
                                   padding: unavailable ? '0 8px' : 0,
-                                  borderRadius: '10px',
-                                  border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
                                   background: brandColor,
                                   color: brandInk,
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '11px',
-                                  fontWeight: 800,
-                                  cursor: 'pointer',
-                                  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.22)',
-                                  flexShrink: 0,
                                 }}
                               >
                                 {unavailable ? (
@@ -2419,7 +2385,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                             className="pm-menu-card"
                             style={{
                               opacity: unavailable ? 0.52 : 1,
-                              boxShadow: isLightMenu ? '0 3px 14px rgba(15, 23, 42, 0.07)' : '0 5px 16px rgba(0, 0, 0, 0.36)',
                             }}
                           >
                             <div className="pm-menu-card-media">
@@ -2450,20 +2415,12 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                               {addons.savedFavorites?.enabled && (
                                 <button
                                   type="button"
+                                  className="pm-fav-btn"
                                   aria-label="مفضلة"
                                   onClick={(e) => toggleFavorite(it.id, e)}
                                   style={{
-                                    position: 'absolute',
-                                    top: '5px',
-                                    insetInlineEnd: '5px',
                                     width: layout === 'grid4' ? '20px' : '24px',
                                     height: layout === 'grid4' ? '20px' : '24px',
-                                    borderRadius: '50%',
-                                    border: '1px solid var(--pm-line)',
-                                    background: 'color-mix(in srgb, var(--pm-card) 86%, transparent)',
-                                    display: 'grid',
-                                    placeItems: 'center',
-                                    cursor: 'pointer',
                                   }}
                                 >
                                   <Heart size={layout === 'grid4' ? 10 : 12} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
@@ -2495,7 +2452,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                   onClick={(e) => quickAddOrOpenModal(it, e)}
                                   className="pm-menu-card-add"
                                   style={{
-                                    border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
                                     background: brandColor,
                                     color: brandInk,
                                     width: unavailable ? 'auto' : undefined,
@@ -2527,15 +2483,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
 
         {/* Customer Reviews Section (Addon-controlled) */}
         {reviewsShowOnMenu && (
-          <section
-            style={{
-              marginTop: '20px',
-              background: 'var(--pm-card)',
-              border: '1px solid var(--pm-line)',
-              borderRadius: '16px',
-              padding: '14px',
-            }}
-          >
+          <section className="pm-addon-card pm-reviews-card" style={{ marginTop: '20px', padding: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'var(--pm-ink)' }}>
                 ⭐ آراء وتقييمات الزبائن ({restaurantReviews.length})
@@ -2543,10 +2491,9 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               {reviewsAllowSubmit && (
                 <button
                   type="button"
+                  className="pm-shape-btn"
                   onClick={() => setRateModalOpen(true)}
                   style={{
-                    border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
-                    borderRadius: '10px',
                     background: brandColor,
                     color: brandInk,
                     padding: '6px 11px',
@@ -2566,15 +2513,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {(restaurantReviews as RestaurantReview[]).slice(0, 5).map((rev: RestaurantReview) => (
-                  <div
-                    key={rev.id}
-                    style={{
-                      background: 'var(--pm-soft)',
-                      border: '1px solid var(--pm-line)',
-                      borderRadius: '12px',
-                      padding: '10px 12px',
-                    }}
-                  >
+                  <div key={rev.id} className="pm-review-item" style={{ padding: '10px 12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                       <b style={{ fontSize: '13px', color: 'var(--pm-ink)' }}>{rev.name}</b>
                       <span style={{ color: '#fbbf24', fontSize: '12px' }}>
@@ -2735,16 +2674,14 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
           {addons.spinWheelPromo?.enabled && (
             <button
               type="button"
+              className="pm-float-btn"
               onClick={() => setSpinModalOpen(true)}
               style={{
-                border: 0,
-                borderRadius: '99px',
                 background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
                 color: '#fff',
                 padding: '10px 14px',
                 fontWeight: 800,
                 fontSize: '12.5px',
-                boxShadow: '0 8px 22px rgba(234,88,12,0.35)',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -2756,17 +2693,16 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
           )}
           {addons.whatsappSupportFloat?.enabled && rest.ph && (
             <a
+              className="pm-float-btn"
               href={waLink(rest.ph, addons.whatsappSupportFloat.prefillText || `مرحباً ${rest.n}، لدي استفسار`)}
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                borderRadius: '99px',
                 background: '#16a34a',
                 color: '#fff',
                 padding: '10px 14px',
                 fontWeight: 800,
                 fontSize: '12.5px',
-                boxShadow: '0 8px 22px rgba(22,163,74,0.35)',
                 textDecoration: 'none',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -5192,11 +5128,11 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         onCopied={showToast}
         palette={{
           bg: customBgColor,
-          card: activeTheme.surface,
-          ink: activeTheme.text,
-          muted: activeTheme.muted,
-          line: activeTheme.line,
-          soft: activeTheme.surfaceSoft,
+          card: effectiveSurface,
+          ink: effectiveInk,
+          muted: effectiveMuted,
+          line: effectiveLine,
+          soft: effectiveSurfaceSoft,
           brand: brandColor,
           onBrand: brandInk,
         }}

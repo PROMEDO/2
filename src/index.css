@@ -2963,6 +2963,37 @@ section.s h2 {
   background: color-mix(in srgb, var(--pm-brand) 10%, var(--pm-soft));
 }
 
+.pm-owner-preview-bar {
+  background: var(--pm-card);
+  border-bottom: 1px solid var(--pm-line);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pm-owner-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.pm-owner-back-btn:hover {
+  opacity: 0.94;
+  transform: translateY(-1px);
+}
+
 .pm-owner-dash-btn {
   height: 38px;
   padding: 0 12px;
@@ -7890,8 +7921,8 @@ html[data-theme="dark"] .mp-items-count-box {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding-bottom: 24px;
+  gap: 320px;
+  padding-bottom: 64px;
 }
 
 .mp-appearance-top-bar {
@@ -8045,6 +8076,58 @@ html[data-theme="dark"] .mp-items-count-box {
   box-shadow: 0 6px 18px color-mix(in srgb, var(--brand) 14%, transparent);
 }
 
+.mp-appearance-custom-theme-card {
+  grid-column: span 2;
+  justify-content: space-between;
+}
+
+.mp-custom-color-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.mp-custom-color-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.mp-custom-color-chip input[type='color'] {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mp-custom-color-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mp-custom-color-hex {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
 .mp-theme-mini-preview {
   width: 100%;
   height: 48px;
@@ -8084,8 +8167,14 @@ html[data-theme="dark"] .mp-items-count-box {
 
 .mp-appearance-shapes-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .mp-appearance-shapes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .mp-appearance-shape-card {
@@ -8109,33 +8198,59 @@ html[data-theme="dark"] .mp-items-count-box {
 
 .mp-shape-preview {
   width: 100%;
-  height: 54px;
-  border-radius: 10px;
+  height: 76px;
+  border-radius: 11px;
   background: var(--bg);
   border: 1px solid var(--line);
-  padding: 7px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.mp-shape-mini-banner {
+  width: 100%;
+  height: 20px;
+  border-radius: 6px;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--brand) 38%, var(--surface)), color-mix(in srgb, var(--brand) 16%, var(--soft)));
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+}
+
+.mp-shape-mini-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.mp-shape-mini-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--brand);
+  border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
+  flex-shrink: 0;
 }
 
 .mp-shape-preview-box {
-  width: 100%;
+  flex: 1;
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 7px;
+  gap: 6px;
+  padding: 4px 6px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 8px;
 }
 
 .mp-shape-preview-thumb {
-  width: 34px;
-  height: 24px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--brand) 25%, var(--soft));
+  width: 24px;
+  height: 20px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--brand) 26%, var(--soft));
   flex-shrink: 0;
 }
 
@@ -8144,122 +8259,620 @@ html[data-theme="dark"] .mp-items-count-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 4px;
 }
 
 .mp-shape-preview-bar {
-  height: 5px;
-  width: 55%;
+  height: 4px;
+  width: 58%;
   border-radius: 4px;
   background: var(--muted);
   opacity: 0.45;
 }
 
 .mp-shape-preview-btn {
-  width: 16px;
-  height: 16px;
-  border-radius: 5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
   background: var(--brand);
   flex-shrink: 0;
 }
 
+/* Dashboard Miniature Previews per Shape */
 .mp-shape-preview-glass {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 18%, var(--bg)), var(--bg));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 22%, var(--bg)), color-mix(in srgb, #60a5fa 14%, var(--bg)));
 }
+.mp-shape-preview-glass .mp-shape-mini-banner,
 .mp-shape-preview-glass .mp-shape-preview-box {
   background: color-mix(in srgb, var(--surface) 45%, transparent);
   backdrop-filter: blur(8px);
-  border-color: rgba(255, 255, 255, 0.22);
-  border-radius: 11px;
+  border-color: rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+}
+.mp-shape-preview-glass .mp-shape-mini-avatar {
+  border-radius: 9px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.26);
 }
 
+.mp-shape-preview-cartoon {
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 20%, transparent) 1.2px, transparent 1.2px);
+  background-size: 7px 7px;
+}
+.mp-shape-preview-cartoon .mp-shape-mini-banner,
+.mp-shape-preview-cartoon .mp-shape-preview-box,
+.mp-shape-preview-cartoon .mp-shape-mini-avatar {
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--brand);
+}
+.mp-shape-preview-cartoon .mp-shape-mini-avatar {
+  transform: rotate(-4deg);
+}
+.mp-shape-preview-cartoon .mp-shape-preview-btn {
+  border: 1.5px solid var(--ink);
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+}
+
+.mp-shape-preview-dreamy {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(192, 132, 252, 0.28), transparent 55%),
+    radial-gradient(circle at 85% 80%, color-mix(in srgb, var(--brand) 28%, transparent), transparent 55%),
+    var(--bg);
+}
+.mp-shape-preview-dreamy .mp-shape-mini-banner {
+  border-radius: 12px;
+  border-color: rgba(192, 132, 252, 0.45);
+  box-shadow: 0 4px 12px rgba(192, 132, 252, 0.24);
+}
+.mp-shape-preview-dreamy .mp-shape-mini-avatar {
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 0 12px color-mix(in srgb, var(--brand) 55%, #c084fc);
+}
+.mp-shape-preview-dreamy .mp-shape-preview-box {
+  border-radius: 14px;
+  border-color: rgba(192, 132, 252, 0.38);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 22%, transparent);
+}
+.mp-shape-preview-dreamy .mp-shape-preview-thumb,
+.mp-shape-preview-dreamy .mp-shape-preview-btn {
+  border-radius: 9999px;
+}
+
+.mp-shape-preview-pill .mp-shape-mini-banner,
 .mp-shape-preview-pill .mp-shape-preview-box {
   border-radius: 9999px;
 }
+.mp-shape-preview-pill .mp-shape-mini-avatar,
 .mp-shape-preview-pill .mp-shape-preview-thumb,
 .mp-shape-preview-pill .mp-shape-preview-btn {
   border-radius: 9999px;
 }
 
+.mp-shape-preview-sharp .mp-shape-mini-banner,
+.mp-shape-preview-sharp .mp-shape-mini-avatar,
 .mp-shape-preview-sharp .mp-shape-preview-box,
 .mp-shape-preview-sharp .mp-shape-preview-thumb,
 .mp-shape-preview-sharp .mp-shape-preview-btn {
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
+.mp-shape-preview-bordered .mp-shape-mini-banner,
+.mp-shape-preview-bordered .mp-shape-mini-avatar,
 .mp-shape-preview-bordered .mp-shape-preview-box {
   border: 2px solid var(--brand);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--brand) 35%, transparent);
+  box-shadow: 0 2.5px 0 color-mix(in srgb, var(--brand) 40%, transparent);
 }
 
 .mp-shape-preview-soft {
   background-image: radial-gradient(color-mix(in srgb, var(--ink) 16%, transparent) 1px, transparent 1px);
-  background-size: 8px 8px;
+  background-size: 7px 7px;
 }
-.mp-shape-preview-soft .mp-shape-preview-box {
+.mp-shape-preview-soft .mp-shape-mini-banner,
+.mp-shape-preview-soft .mp-shape-preview-box,
+.mp-shape-preview-soft .mp-shape-mini-avatar {
   border-color: transparent;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
 }
 
-/* ===== Customer Menu Page Shape Overrides ===== */
-.pm-page[data-shape='glass'] {
+/* ===== Customer Menu Shape-Aware Utility Classes ===== */
+.pm-shape-pill {
+  border-radius: 99px;
+}
+
+.pm-shape-btn {
+  border-radius: 10px;
+}
+
+.pm-addon-card {
+  background: var(--pm-card);
+  border: 1px solid var(--pm-line);
+  border-radius: 16px;
+}
+
+.pm-special-card {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+.pm-page.pm-light .pm-special-card {
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+
+.pm-special-thumb {
+  border-radius: 12px;
+}
+
+.pm-filter-chip {
+  border: 1px solid var(--pm-line);
+  background: var(--pm-soft);
+  color: var(--pm-muted);
+  border-radius: 99px;
+  padding: 4px 11px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pm-filter-chip.active {
+  border-color: var(--pm-brand);
+}
+
+.pm-list-add-btn {
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+  flex-shrink: 0;
+}
+
+.pm-fav-btn {
+  position: absolute;
+  top: 5px;
+  inset-inline-end: 5px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--pm-line);
+  background: color-mix(in srgb, var(--pm-card) 86%, transparent);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.pm-review-item {
+  background: var(--pm-soft);
+  border: 1px solid var(--pm-line);
+  border-radius: 12px;
+}
+
+.pm-float-btn {
+  border: 0;
+  border-radius: 99px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+/* ===== Full-Page Customer Menu Shape Overrides (Banner, Avatar, Profile, Cards, Buttons & Sheets) ===== */
+
+/* 1. GLASS — Frosted translucent surfaces across banner ring, profile, avatar, strip, cards, dock & sheets */
+.pm-page[data-shape='glass'],
+.pm-page.pm-light[data-shape='glass'] {
   background-image:
-    radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--pm-brand) 16%, transparent), transparent 42%),
-    radial-gradient(circle at 88% 22%, color-mix(in srgb, var(--pm-brand) 10%, transparent), transparent 38%);
+    radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--pm-brand) 22%, transparent), transparent 45%),
+    radial-gradient(circle at 88% 24%, color-mix(in srgb, var(--pm-brand) 14%, transparent), transparent 42%),
+    radial-gradient(circle at 50% 88%, color-mix(in srgb, var(--pm-brand) 12%, transparent), transparent 46%);
 }
 
+.pm-page[data-shape='glass'] .pm-topbar,
+.pm-page[data-shape='glass'] .pm-owner-preview-bar {
+  background: color-mix(in srgb, var(--pm-card) 58%, transparent);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid color-mix(in srgb, var(--pm-ink) 16%, transparent);
+}
+
+.pm-page[data-shape='glass'] .pm-cat-strip-wrap {
+  background: color-mix(in srgb, var(--pm-bg) 56%, transparent);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+}
+
+.pm-page[data-shape='glass'] .pm-hero-carousel {
+  border-radius: 26px;
+  border: 2px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 18px 42px color-mix(in srgb, var(--pm-brand) 20%, rgba(0, 0, 0, 0.32));
+}
+
+.pm-page[data-shape='glass'] .pm-logo-box {
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.34);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--pm-brand) 18%, transparent), 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.pm-page[data-shape='glass'] .pm-profile-card,
+.pm-page[data-shape='glass'] .pm-addon-card,
 .pm-page[data-shape='glass'] .pm-menu-card,
-.pm-page[data-shape='glass'] .pm-product-row {
-  background: color-mix(in srgb, var(--pm-card) 58%, transparent) !important;
-  backdrop-filter: blur(16px) saturate(1.35);
-  -webkit-backdrop-filter: blur(16px) saturate(1.35);
-  border: 1px solid color-mix(in srgb, var(--pm-ink) 16%, transparent) !important;
+.pm-page[data-shape='glass'] .pm-product-row,
+.pm-page[data-shape='glass'] .pm-review-item,
+.pm-page[data-shape='glass'] .pm-fd-card,
+.pm-page[data-shape='glass'] .pm-sheet {
+  background: color-mix(in srgb, var(--pm-card) 54%, transparent) !important;
+  backdrop-filter: blur(20px) saturate(1.45);
+  -webkit-backdrop-filter: blur(20px) saturate(1.45);
+  border: 1px solid color-mix(in srgb, var(--pm-ink) 18%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 10px 28px rgba(0, 0, 0, 0.22) !important;
 }
 
-.pm-page[data-shape='pill'] .pm-menu-card,
+.pm-page[data-shape='glass'] .pm-icon-btn,
+.pm-page[data-shape='glass'] .pm-order-type-pill,
+.pm-page[data-shape='glass'] .pm-cat-chip:not(.active),
+.pm-page[data-shape='glass'] .pm-filter-chip:not(.active) {
+  background: color-mix(in srgb, var(--pm-soft) 52%, transparent) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: color-mix(in srgb, var(--pm-ink) 18%, transparent) !important;
+}
+
+/* 2. CARTOON ("رسوم") — Bold Comic Outlines + Offset Graphic Shadows + Halftone Dots */
+.pm-page[data-shape='cartoon'],
+.pm-page.pm-light[data-shape='cartoon'] {
+  --pm-comic-border: var(--pm-ink);
+  --pm-comic-drop: var(--pm-ink);
+  background-image: radial-gradient(color-mix(in srgb, var(--pm-ink) 13%, transparent) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+.pm-page[data-shape='cartoon']:not(.pm-light) {
+  --pm-comic-border: color-mix(in srgb, var(--pm-ink) 88%, var(--pm-brand));
+  --pm-comic-drop: var(--pm-brand);
+}
+
+.pm-page[data-shape='cartoon'] .pm-topbar,
+.pm-page[data-shape='cartoon'] .pm-owner-preview-bar {
+  border-bottom: 3px solid var(--pm-comic-border);
+  box-shadow: none;
+}
+
+.pm-page[data-shape='cartoon'] .pm-cat-strip-wrap {
+  border-bottom: 2.5px dashed color-mix(in srgb, var(--pm-comic-border) 55%, transparent);
+}
+
+.pm-page[data-shape='cartoon'] .pm-hero-carousel {
+  border-radius: 18px;
+  border: 3px solid var(--pm-comic-border);
+  box-shadow: 6px 6px 0 var(--pm-comic-drop);
+}
+
+.pm-page[data-shape='cartoon'] .pm-profile-card {
+  border-radius: 18px;
+  border: 3px solid var(--pm-comic-border) !important;
+  box-shadow: 5px 5px 0 var(--pm-comic-drop) !important;
+}
+
+.pm-page[data-shape='cartoon'] .pm-logo-box {
+  border-radius: 16px;
+  border: 3px solid var(--pm-comic-border);
+  box-shadow: 4px 4px 0 var(--pm-comic-drop);
+  transform: rotate(-4deg);
+}
+
+.pm-page[data-shape='cartoon'] .pm-addon-card,
+.pm-page[data-shape='cartoon'] .pm-menu-card,
+.pm-page[data-shape='cartoon'] .pm-product-row,
+.pm-page[data-shape='cartoon'] .pm-review-item,
+.pm-page[data-shape='cartoon'] .pm-fd-card,
+.pm-page[data-shape='cartoon'] .pm-sheet,
+.pm-page[data-shape='cartoon'] .pm-option-row {
+  border-radius: 15px !important;
+  border: 2.5px solid var(--pm-comic-border) !important;
+  box-shadow: 4px 4px 0 var(--pm-comic-drop) !important;
+}
+
+.pm-page[data-shape='cartoon'] .pm-menu-card:hover,
+.pm-page[data-shape='cartoon'] .pm-product-row:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--pm-comic-drop) !important;
+}
+
+.pm-page[data-shape='cartoon'] .pm-menu-card-media {
+  border-bottom: 2.5px solid var(--pm-comic-border);
+}
+
+.pm-page[data-shape='cartoon'] .pm-product-thumb,
+.pm-page[data-shape='cartoon'] .pm-special-thumb {
+  border-radius: 11px !important;
+  border: 2px solid var(--pm-comic-border) !important;
+}
+
+.pm-page[data-shape='cartoon'] .pm-icon-btn,
+.pm-page[data-shape='cartoon'] .pm-order-type-pill,
+.pm-page[data-shape='cartoon'] .pm-menu-card-add,
+.pm-page[data-shape='cartoon'] .pm-list-add-btn,
+.pm-page[data-shape='cartoon'] .pm-shape-btn,
+.pm-page[data-shape='cartoon'] .pm-owner-back-btn,
+.pm-page[data-shape='cartoon'] .pm-cart-cta {
+  border-radius: 11px !important;
+  border: 2.5px solid var(--pm-comic-border) !important;
+  box-shadow: 3px 3px 0 var(--pm-comic-drop) !important;
+}
+
+.pm-page[data-shape='cartoon'] .pm-cat-chip,
+.pm-page[data-shape='cartoon'] .pm-filter-chip,
+.pm-page[data-shape='cartoon'] .pm-shape-pill,
+.pm-page[data-shape='cartoon'] .pm-badge,
+.pm-page[data-shape='cartoon'] .pm-float-btn {
+  border-radius: 99px !important;
+  border: 2px solid var(--pm-comic-border) !important;
+  box-shadow: 2.5px 2.5px 0 var(--pm-comic-drop) !important;
+}
+
+/* 3. DREAMY ("أحلام") — Soft Cloud Glow, Aurora Backdrop & Circular Ethereal Borders */
+.pm-page[data-shape='dreamy'],
+.pm-page.pm-light[data-shape='dreamy'] {
+  background-image:
+    radial-gradient(circle at 14% 10%, rgba(192, 132, 252, 0.22), transparent 46%),
+    radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--pm-brand) 22%, transparent), transparent 48%),
+    radial-gradient(circle at 22% 72%, rgba(96, 165, 250, 0.16), transparent 46%),
+    radial-gradient(circle at 80% 90%, rgba(244, 114, 182, 0.16), transparent 46%);
+}
+
+.pm-page[data-shape='dreamy'] .pm-topbar,
+.pm-page[data-shape='dreamy'] .pm-owner-preview-bar,
+.pm-page[data-shape='dreamy'] .pm-cat-strip-wrap {
+  background: color-mix(in srgb, var(--pm-card) 72%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom-color: color-mix(in srgb, var(--pm-brand) 24%, rgba(192, 132, 252, 0.25));
+}
+
+.pm-page[data-shape='dreamy'] .pm-hero-carousel {
+  border-radius: 30px;
+  border: 2px solid color-mix(in srgb, var(--pm-brand) 36%, rgba(232, 121, 249, 0.35));
+  box-shadow:
+    0 18px 42px -10px color-mix(in srgb, var(--pm-brand) 34%, rgba(192, 132, 252, 0.3)),
+    0 0 0 4px color-mix(in srgb, var(--pm-brand) 10%, rgba(192, 132, 252, 0.1));
+}
+
+.pm-page[data-shape='dreamy'] .pm-logo-box {
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, #e879f9 45%, var(--pm-brand));
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--pm-brand) 16%, rgba(192, 132, 252, 0.16)),
+    0 8px 24px color-mix(in srgb, var(--pm-brand) 36%, rgba(192, 132, 252, 0.3));
+}
+
+.pm-page[data-shape='dreamy'] .pm-profile-card,
+.pm-page[data-shape='dreamy'] .pm-addon-card,
+.pm-page[data-shape='dreamy'] .pm-menu-card,
+.pm-page[data-shape='dreamy'] .pm-product-row,
+.pm-page[data-shape='dreamy'] .pm-review-item,
+.pm-page[data-shape='dreamy'] .pm-fd-card,
+.pm-page[data-shape='dreamy'] .pm-sheet {
+  border-radius: 26px !important;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--pm-card) 86%, rgba(255, 255, 255, 0.12)),
+    color-mix(in srgb, var(--pm-card) 74%, rgba(192, 132, 252, 0.1))
+  ) !important;
+  border: 1.5px solid color-mix(in srgb, var(--pm-brand) 28%, rgba(216, 180, 254, 0.36)) !important;
+  box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--pm-brand) 22%, rgba(168, 85, 247, 0.22)) !important;
+}
+
+.pm-page[data-shape='dreamy'] .pm-menu-card {
+  padding: 6px;
+}
+
+.pm-page[data-shape='dreamy'] .pm-menu-card-media,
+.pm-page[data-shape='dreamy'] .pm-product-thumb,
+.pm-page[data-shape='dreamy'] .pm-special-thumb {
+  border-radius: 20px !important;
+}
+
+.pm-page[data-shape='dreamy'] .pm-icon-btn,
+.pm-page[data-shape='dreamy'] .pm-order-type-pill,
+.pm-page[data-shape='dreamy'] .pm-cat-chip,
+.pm-page[data-shape='dreamy'] .pm-filter-chip,
+.pm-page[data-shape='dreamy'] .pm-menu-card-add,
+.pm-page[data-shape='dreamy'] .pm-list-add-btn,
+.pm-page[data-shape='dreamy'] .pm-shape-btn,
+.pm-page[data-shape='dreamy'] .pm-owner-back-btn,
+.pm-page[data-shape='dreamy'] .pm-cart-cta,
+.pm-page[data-shape='dreamy'] .pm-option-row {
+  border-radius: 9999px !important;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--pm-brand) 20%, rgba(192, 132, 252, 0.2)) !important;
+}
+
+/* 4. PILL — Full Capsule / Circular Styling Everywhere */
+.pm-page[data-shape='pill'] .pm-hero-carousel {
+  border-radius: 34px;
+}
+
+.pm-page[data-shape='pill'] .pm-profile-card {
+  border-radius: 34px;
+}
+
+.pm-page[data-shape='pill'] .pm-logo-box {
+  border-radius: 50%;
+  border-width: 3px;
+}
+
+.pm-page[data-shape='pill'] .pm-addon-card,
+.pm-page[data-shape='pill'] .pm-review-item,
+.pm-page[data-shape='pill'] .pm-fd-card,
+.pm-page[data-shape='pill'] .pm-sheet {
+  border-radius: 28px !important;
+}
+
+.pm-page[data-shape='pill'] .pm-menu-card {
+  border-radius: 26px !important;
+  padding: 5px;
+}
+
+.pm-page[data-shape='pill'] .pm-menu-card-media {
+  border-radius: 21px !important;
+}
+
 .pm-page[data-shape='pill'] .pm-product-row {
-  border-radius: 24px !important;
+  border-radius: 9999px !important;
+  padding: 8px 14px;
 }
 
-.pm-page[data-shape='pill'] .pm-menu-card-media,
-.pm-page[data-shape='pill'] .pm-product-thumb {
-  border-radius: 18px !important;
-}
-
-.pm-page[data-shape='pill'] .pm-menu-card-add,
-.pm-page[data-shape='pill'] .pm-cat-chip {
+.pm-page[data-shape='pill'] .pm-product-thumb,
+.pm-page[data-shape='pill'] .pm-special-thumb {
   border-radius: 9999px !important;
 }
 
+.pm-page[data-shape='pill'] .pm-icon-btn,
+.pm-page[data-shape='pill'] .pm-order-type-pill,
+.pm-page[data-shape='pill'] .pm-menu-card-add,
+.pm-page[data-shape='pill'] .pm-list-add-btn,
+.pm-page[data-shape='pill'] .pm-cat-chip,
+.pm-page[data-shape='pill'] .pm-filter-chip,
+.pm-page[data-shape='pill'] .pm-shape-btn,
+.pm-page[data-shape='pill'] .pm-owner-back-btn,
+.pm-page[data-shape='pill'] .pm-cart-cta,
+.pm-page[data-shape='pill'] .pm-option-row {
+  border-radius: 9999px !important;
+}
+
+/* 5. SHARP — Crisp Razor-Straight Architectural Lines on Every Single Component */
+.pm-page[data-shape='sharp'] .pm-hero-carousel {
+  border-radius: 2px;
+  outline: 1px solid color-mix(in srgb, var(--pm-brand) 34%, transparent);
+  outline-offset: 3px;
+}
+
+.pm-page[data-shape='sharp'] .pm-profile-card,
+.pm-page[data-shape='sharp'] .pm-logo-box,
+.pm-page[data-shape='sharp'] .pm-addon-card,
 .pm-page[data-shape='sharp'] .pm-menu-card,
+.pm-page[data-shape='sharp'] .pm-menu-card-media,
 .pm-page[data-shape='sharp'] .pm-product-row,
 .pm-page[data-shape='sharp'] .pm-product-thumb,
+.pm-page[data-shape='sharp'] .pm-special-thumb,
+.pm-page[data-shape='sharp'] .pm-icon-btn,
+.pm-page[data-shape='sharp'] .pm-order-type-pill,
 .pm-page[data-shape='sharp'] .pm-menu-card-add,
-.pm-page[data-shape='sharp'] .pm-cat-chip {
-  border-radius: 4px !important;
+.pm-page[data-shape='sharp'] .pm-list-add-btn,
+.pm-page[data-shape='sharp'] .pm-cat-chip,
+.pm-page[data-shape='sharp'] .pm-cat-chip-img,
+.pm-page[data-shape='sharp'] .pm-filter-chip,
+.pm-page[data-shape='sharp'] .pm-shape-btn,
+.pm-page[data-shape='sharp'] .pm-shape-pill,
+.pm-page[data-shape='sharp'] .pm-badge,
+.pm-page[data-shape='sharp'] .pm-qty-badge,
+.pm-page[data-shape='sharp'] .pm-fav-btn,
+.pm-page[data-shape='sharp'] .pm-owner-back-btn,
+.pm-page[data-shape='sharp'] .pm-review-item,
+.pm-page[data-shape='sharp'] .pm-float-btn,
+.pm-page[data-shape='sharp'] .pm-fd-card,
+.pm-page[data-shape='sharp'] .pm-fd-bar,
+.pm-page[data-shape='sharp'] .pm-cart-cta,
+.pm-page[data-shape='sharp'] .pm-sheet,
+.pm-page[data-shape='sharp'] .pm-option-row {
+  border-radius: 2px !important;
 }
 
+.pm-page[data-shape='sharp'] .pm-profile-card {
+  border-width: 1.5px;
+  border-color: color-mix(in srgb, var(--pm-brand) 40%, var(--pm-line));
+}
+
+/* 6. BORDERED — Thick Brand Borders & Tactile 3D Lip Depth Across Full Page */
+.pm-page[data-shape='bordered'] .pm-hero-carousel {
+  border-radius: 18px;
+  border: 2.5px solid color-mix(in srgb, var(--pm-brand) 65%, var(--pm-line));
+  box-shadow: 0 7px 0 color-mix(in srgb, var(--pm-brand) 26%, var(--pm-line));
+}
+
+.pm-page[data-shape='bordered'] .pm-logo-box {
+  border-radius: 16px;
+  border: 2.5px solid var(--pm-brand);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--pm-brand) 32%, transparent);
+}
+
+.pm-page[data-shape='bordered'] .pm-profile-card,
+.pm-page[data-shape='bordered'] .pm-addon-card,
 .pm-page[data-shape='bordered'] .pm-menu-card,
-.pm-page[data-shape='bordered'] .pm-product-row {
-  border: 2px solid color-mix(in srgb, var(--pm-brand) 48%, var(--pm-line)) !important;
-  box-shadow: 0 5px 0 color-mix(in srgb, var(--pm-brand) 18%, transparent) !important;
+.pm-page[data-shape='bordered'] .pm-product-row,
+.pm-page[data-shape='bordered'] .pm-review-item,
+.pm-page[data-shape='bordered'] .pm-fd-card,
+.pm-page[data-shape='bordered'] .pm-sheet {
+  border: 2px solid color-mix(in srgb, var(--pm-brand) 52%, var(--pm-line)) !important;
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--pm-brand) 22%, transparent) !important;
 }
 
-.pm-page[data-shape='soft'] {
-  background-image: radial-gradient(color-mix(in srgb, var(--pm-ink) 10%, transparent) 1px, transparent 1px);
+.pm-page[data-shape='bordered'] .pm-icon-btn,
+.pm-page[data-shape='bordered'] .pm-order-type-pill,
+.pm-page[data-shape='bordered'] .pm-cat-chip,
+.pm-page[data-shape='bordered'] .pm-filter-chip,
+.pm-page[data-shape='bordered'] .pm-menu-card-add,
+.pm-page[data-shape='bordered'] .pm-list-add-btn,
+.pm-page[data-shape='bordered'] .pm-shape-btn,
+.pm-page[data-shape='bordered'] .pm-owner-back-btn,
+.pm-page[data-shape='bordered'] .pm-cart-cta,
+.pm-page[data-shape='bordered'] .pm-option-row {
+  border-width: 2px !important;
+  border-color: color-mix(in srgb, var(--pm-brand) 58%, var(--pm-line)) !important;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--pm-brand) 24%, transparent) !important;
+}
+
+/* 7. SOFT — Textured Polka-Dot Background + Plush Borderless Cushioned Cards */
+.pm-page[data-shape='soft'],
+.pm-page.pm-light[data-shape='soft'] {
+  background-image: radial-gradient(color-mix(in srgb, var(--pm-ink) 11%, transparent) 1.15px, transparent 1.15px);
   background-size: 14px 14px;
 }
 
+.pm-page[data-shape='soft'] .pm-hero-carousel {
+  border-radius: 26px;
+  border-color: transparent;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+}
+
+.pm-page[data-shape='soft'] .pm-logo-box {
+  border-radius: 22px;
+  border-color: transparent;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--pm-brand) 28%, rgba(0, 0, 0, 0.14));
+}
+
+.pm-page[data-shape='soft'] .pm-profile-card,
+.pm-page[data-shape='soft'] .pm-addon-card,
 .pm-page[data-shape='soft'] .pm-menu-card,
-.pm-page[data-shape='soft'] .pm-product-row {
+.pm-page[data-shape='soft'] .pm-product-row,
+.pm-page[data-shape='soft'] .pm-review-item,
+.pm-page[data-shape='soft'] .pm-fd-card,
+.pm-page[data-shape='soft'] .pm-sheet {
   border-color: transparent !important;
-  border-radius: 18px !important;
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.14) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14) !important;
+}
+
+.pm-page.pm-light[data-shape='soft'] .pm-profile-card,
+.pm-page.pm-light[data-shape='soft'] .pm-addon-card,
+.pm-page.pm-light[data-shape='soft'] .pm-menu-card,
+.pm-page.pm-light[data-shape='soft'] .pm-product-row,
+.pm-page.pm-light[data-shape='soft'] .pm-review-item,
+.pm-page.pm-light[data-shape='soft'] .pm-fd-card,
+.pm-page.pm-light[data-shape='soft'] .pm-sheet {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+.pm-page[data-shape='soft'] .pm-menu-card {
+  padding: 5px;
+}
+.pm-page[data-shape='soft'] .pm-menu-card-media,
+.pm-page[data-shape='soft'] .pm-product-thumb,
+.pm-page[data-shape='soft'] .pm-special-thumb {
+  border-radius: 17px !important;
+  border-color: transparent !important;
 }
 
 @media (max-width: 640px) {
   .mp-appearance-page {
-    gap: 28px;
+    gap: 280px;
   }
 
   .mp-appearance-top-bar {
@@ -8293,6 +8906,10 @@ html[data-theme="dark"] .mp-items-count-box {
   .mp-appearance-themes-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+  }
+
+  .mp-appearance-custom-theme-card {
+    grid-column: span 2;
   }
 
   .mp-appearance-shapes-grid {
@@ -8331,7 +8948,12 @@ html[data-theme="dark"] .mp-items-count-box {
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  transition: transform 0.16s ease, border-color 0.16s ease;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.32);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.pm-page.pm-light .pm-menu-card {
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.07);
 }
 
 .pm-menu-card:hover {
@@ -8407,6 +9029,7 @@ html[data-theme="dark"] .mp-items-count-box {
   width: 30px;
   height: 30px;
   border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -8487,6 +9110,12 @@ html[data-theme="dark"] .mp-items-count-box {
     width: 22px;
     height: 22px;
     border-radius: 7px;
+  }
+
+  .pm-page[data-shape='pill'] .pm-cols-4 .pm-menu-card,
+  .pm-page[data-shape='dreamy'] .pm-cols-4 .pm-menu-card,
+  .pm-page[data-shape='soft'] .pm-cols-4 .pm-menu-card {
+    padding: 3px;
   }
 }
 

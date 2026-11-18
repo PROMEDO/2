@@ -5,18 +5,15 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Palette, Save, Shapes } from 'lucide-react';
+import { Palette, RotateCcw, Save, Shapes } from 'lucide-react';
 import {
   MENU_SHAPES,
   MENU_THEMES,
   getAllowedThemesForPlan,
+  getContrastInk,
   resolveMenuThemeEffectiveMode,
 } from '../../utils/plans';
-import {
-  LAYOUT_DEFINITIONS,
-  themedInputStyle,
-  useDashboard,
-} from './DashboardContext';
+import { LAYOUT_DEFINITIONS, useDashboard } from './DashboardContext';
 
 export const AppearancePage: React.FC = () => {
   const {
@@ -27,12 +24,11 @@ export const AppearancePage: React.FC = () => {
     handleSelectThemeMode,
     menuThemePreset,
     handleSelectMenuTheme,
+    handleUpdateCustomColors,
     menuThemeShape,
     handleSelectThemeShape,
     restColor,
-    setRestColor,
     restBgColor,
-    setRestBgColor,
     handleInstantLayoutSelect,
     handleSaveSettings,
     openUpgradeModal,
@@ -40,6 +36,14 @@ export const AppearancePage: React.FC = () => {
 
   const allowedThemes = getAllowedThemesForPlan(resolvedPlan);
   const previewMode = resolveMenuThemeEffectiveMode(menuThemeMode);
+  const isCustomSelected = menuThemePreset === 'custom' && resolvedPlan.perms.customColors;
+  const customBrandHex = restColor || '#10B981';
+  const defaultPreviewBg = previewMode === 'dark' ? '#08100d' : '#f4f7f6';
+  const customBgPreview = restBgColor || defaultPreviewBg;
+  const customBgIsLight = getContrastInk(customBgPreview) === '#0f172a';
+  const customSurfacePreview = customBgIsLight ? '#ffffff' : '#131d19';
+  const customInkPreview = customBgIsLight ? '#0f172a' : '#f8fafc';
+  const customLinePreview = customBgIsLight ? 'rgba(15, 23, 42, 0.14)' : 'rgba(255, 255, 255, 0.16)';
 
   return (
     <div className="mp-appearance-page">
@@ -166,7 +170,7 @@ export const AppearancePage: React.FC = () => {
         </div>
       </motion.section>
 
-      {/* 3. Menu Colors (10 Dual Light/Dark Themes as Interactive Cards) */}
+      {/* 3. Menu Colors (10 Dual Light/Dark Themes + Wide 2-Column Custom Color Picker Card at the End) */}
       <motion.section
         className="mp-appearance-section"
         initial={{ opacity: 0, y: 14 }}
@@ -182,7 +186,7 @@ export const AppearancePage: React.FC = () => {
               اختر ألوان المنيو
             </h2>
             <p style={{ fontSize: '12px', color: 'var(--muted)', margin: 0 }}>
-              10 ثيمات لونية متوافقة تلقائياً مع الوضع الفاتح والغامق
+              10 ثيمات لونية متوافقة تلقائياً مع الوضع الفاتح والغامق بالإضافة للألوان المخصصة
             </p>
           </div>
         </div>
@@ -205,7 +209,6 @@ export const AppearancePage: React.FC = () => {
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {/* Live mini theme color & dark/light preview strip */}
                 <div
                   className="mp-theme-mini-preview"
                   style={{
@@ -234,10 +237,122 @@ export const AppearancePage: React.FC = () => {
               </motion.button>
             );
           })}
+
+          {/* Last Option: Wide Card Spanning 2 Cards Width for Custom Menu Colors */}
+          <motion.div
+            role="button"
+            tabIndex={0}
+            onClick={() => handleSelectMenuTheme('custom')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleSelectMenuTheme('custom');
+              }
+            }}
+            className={`mp-appearance-theme-card mp-appearance-custom-theme-card ${isCustomSelected ? 'selected' : ''}`}
+            style={{
+              borderColor: isCustomSelected ? customBrandHex : undefined,
+              opacity: resolvedPlan.perms.customColors ? 1 : 0.72,
+            }}
+            whileHover={{ y: -2 }}
+          >
+            <div
+              className="mp-theme-mini-preview"
+              style={{
+                background: customBgPreview,
+                borderColor: customLinePreview,
+              }}
+            >
+              <div className="mp-theme-mini-card" style={{ background: customSurfacePreview, borderColor: customLinePreview }}>
+                <span className="mp-theme-mini-line" style={{ background: customInkPreview, width: '58%' }} />
+                <span className="mp-theme-mini-line" style={{ background: customBrandHex, width: '36%', opacity: 0.75 }} />
+              </div>
+              <span className="mp-theme-mini-pill" style={{ background: customBrandHex }} />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px', flexWrap: 'wrap' }}>
+              <div>
+                <b style={{ fontSize: '13.5px', color: 'var(--ink)', display: 'block' }}>
+                  ألوان مخصصة لمنيوك 🎨
+                </b>
+                <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                  اختر اللون الأساسي ولون الخلفية بحرية لتناسب هوية مشروعك
+                </span>
+              </div>
+              <span style={{ fontSize: '10.5px', fontWeight: 800, color: resolvedPlan.perms.customColors ? (isCustomSelected ? 'var(--brand-ink, #34D399)' : 'var(--muted)') : '#f59e0b' }}>
+                {!resolvedPlan.perms.customColors ? '🔒 باقة أعلى' : isCustomSelected ? 'نشط ✓' : 'تخصيص حر'}
+              </span>
+            </div>
+
+            <div
+              className="mp-custom-color-controls"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!resolvedPlan.perms.customColors) {
+                  openUpgradeModal('vip');
+                }
+              }}
+            >
+              <label className="mp-custom-color-chip">
+                <input
+                  type="color"
+                  disabled={!resolvedPlan.perms.customColors}
+                  value={customBrandHex}
+                  onChange={(e) => handleUpdateCustomColors(e.target.value, undefined)}
+                  aria-label="اللون الأساسي"
+                />
+                <div style={{ minWidth: 0 }}>
+                  <span className="mp-custom-color-label">اللون الأساسي</span>
+                  <span className="mp-custom-color-hex tabular-nums" dir="ltr">{customBrandHex.toUpperCase()}</span>
+                </div>
+              </label>
+
+              <label className="mp-custom-color-chip">
+                <input
+                  type="color"
+                  disabled={!resolvedPlan.perms.customColors}
+                  value={customBgPreview}
+                  onChange={(e) => handleUpdateCustomColors(undefined, e.target.value)}
+                  aria-label="لون الخلفية"
+                />
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <span className="mp-custom-color-label">لون الخلفية</span>
+                  <span className="mp-custom-color-hex tabular-nums" dir="ltr">
+                    {restBgColor ? restBgColor.toUpperCase() : 'تلقائي'}
+                  </span>
+                </div>
+                {restBgColor && resolvedPlan.perms.customColors && (
+                  <button
+                    type="button"
+                    title="إرجاع الخلفية تلقائياً"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleUpdateCustomColors(undefined, '');
+                    }}
+                    style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '6px',
+                      border: '1px solid var(--line)',
+                      background: 'var(--surface)',
+                      color: 'var(--muted)',
+                      display: 'grid',
+                      placeItems: 'center',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <RotateCcw size={11} />
+                  </button>
+                )}
+              </label>
+            </div>
+          </motion.div>
         </div>
       </motion.section>
 
-      {/* 4. Page & Card Shapes (Interactive Shape Cards) */}
+      {/* 4. Page & Card Shapes (8 Standout Interactive Shape Cards Applied Across Entire Menu) */}
       <motion.section
         className="mp-appearance-section"
         initial={{ opacity: 0, y: 14 }}
@@ -253,7 +368,7 @@ export const AppearancePage: React.FC = () => {
               اختر شكل الصفحة والبطاقات
             </h2>
             <p style={{ fontSize: '12px', color: 'var(--muted)', margin: 0 }}>
-              أشكال وتفاصيل متنوعة للبطاقات والزوايا والخلفية
+              يُطبّق الشكل فوراً على كامل الصفحة: البنر، الصورة الشخصية، الأقسام والبطاقات
             </p>
           </div>
         </div>
@@ -271,11 +386,15 @@ export const AppearancePage: React.FC = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 <div className={`mp-shape-preview mp-shape-preview-${shape.id}`}>
-                  <div className="mp-shape-preview-box">
-                    <div className="mp-shape-preview-thumb" />
-                    <div className="mp-shape-preview-meta">
-                      <span className="mp-shape-preview-bar" />
-                      <span className="mp-shape-preview-btn" />
+                  <div className="mp-shape-mini-banner" />
+                  <div className="mp-shape-mini-row">
+                    <div className="mp-shape-mini-avatar" />
+                    <div className="mp-shape-preview-box">
+                      <div className="mp-shape-preview-thumb" />
+                      <div className="mp-shape-preview-meta">
+                        <span className="mp-shape-preview-bar" />
+                        <span className="mp-shape-preview-btn" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -306,87 +425,6 @@ export const AppearancePage: React.FC = () => {
               </motion.button>
             );
           })}
-        </div>
-      </motion.section>
-
-      {/* 5. Custom Brand Colors */}
-      <motion.section
-        className="mp-appearance-section"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, delay: 0.24 }}
-        style={{
-          paddingTop: '18px',
-          borderTop: '1px solid var(--line)',
-          opacity: resolvedPlan.perms.customColors ? 1 : 0.72,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-          <b style={{ fontSize: '14px', color: 'var(--ink)' }}>
-            تخصيص ألوان الهوية البصرية بالكامل
-          </b>
-          {!resolvedPlan.perms.customColors && (
-            <button
-              type="button"
-              onClick={() => openUpgradeModal('vip')}
-              style={{
-                background: 'none',
-                border: 0,
-                padding: 0,
-                fontSize: '11.5px',
-                fontWeight: 800,
-                color: '#f59e0b',
-                cursor: 'pointer',
-              }}
-            >
-              🔒 متاح في باقة الاعمال الشاملة — ترقية
-            </button>
-          )}
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px' }}>
-          <label className="f" style={{ margin: 0, fontSize: '12.5px' }}>
-            اللون الأساسي (Brand Color)
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="color"
-                disabled={!resolvedPlan.perms.customColors}
-                value={restColor || '#1B5E4A'}
-                onChange={(e) => setRestColor(e.target.value)}
-                style={{ width: '44px', height: '38px', borderRadius: '8px', border: '1px solid var(--line)', cursor: resolvedPlan.perms.customColors ? 'pointer' : 'not-allowed' }}
-              />
-              <input
-                type="text"
-                dir="ltr"
-                disabled={!resolvedPlan.perms.customColors}
-                value={restColor}
-                onChange={(e) => setRestColor(e.target.value)}
-                style={{ ...themedInputStyle, fontSize: '12.5px' }}
-              />
-            </div>
-          </label>
-
-          <label className="f" style={{ margin: 0, fontSize: '12.5px' }}>
-            لون الخلفية المخصص (اختياري)
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="color"
-                disabled={!resolvedPlan.perms.customColors}
-                value={restBgColor || '#08100d'}
-                onChange={(e) => setRestBgColor(e.target.value)}
-                style={{ width: '44px', height: '38px', borderRadius: '8px', border: '1px solid var(--line)', cursor: resolvedPlan.perms.customColors ? 'pointer' : 'not-allowed' }}
-              />
-              <input
-                type="text"
-                dir="ltr"
-                disabled={!resolvedPlan.perms.customColors}
-                value={restBgColor}
-                placeholder="تلقائي حسب المظهر"
-                onChange={(e) => setRestBgColor(e.target.value)}
-                style={{ ...themedInputStyle, fontSize: '12.5px' }}
-              />
-            </div>
-          </label>
         </div>
       </motion.section>
     </div>
