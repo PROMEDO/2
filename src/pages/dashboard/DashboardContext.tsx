@@ -1005,25 +1005,62 @@ function useDashboardController({
     buildDeliveryZonesDraft(rest)
   );
 
+  const [appearanceSaving, setAppearanceSaving] = useState(false);
+  const colorSyncTimerRef = useRef<number | null>(null);
+  const appearanceDraftRef = useRef<{
+    lay: MenuLayout;
+    themeMode: 'dark' | 'light' | 'auto';
+    themePreset: string;
+    themeShape: MenuThemeShape;
+    color: string;
+    bgColor: string;
+  }>({
+    lay: isLayoutAllowed(normalizeLayoutChoice(rest.lay)) ? normalizeLayoutChoice(rest.lay) : 'list',
+    themeMode: rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light',
+    themePreset: rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light'),
+    themeShape: normalizeShapeChoice(rest.themeShape),
+    color: rest.color || '#059669',
+    bgColor: rest.bgColor || '',
+  });
+
+  const buildRestSignature = (rObj: Restaurant, targetRid: string) =>
+    `${targetRid}|${rObj.planId || ''}|${rObj.slug || ''}|${rObj.lay || ''}|${rObj.themeMode || ''}|${rObj.dashboardThemeMode || ''}|${rObj.themePreset || ''}|${rObj.themeShape || ''}|${rObj.color || ''}|${rObj.bgColor || ''}|${rObj.currency || ''}|${rObj.logo || ''}|${rObj.coverImages?.[0] || ''}|${rObj.n || ''}|${rObj.orderChannel || ''}|${rObj.telegramNotificationsEnabled === false ? '0' : '1'}`;
+
   // Synchronize dashboard form state when switching branch or syncing remote DB
   const syncedRestRef = useRef<string>('');
   useEffect(() => {
-    const sig = `${rid}|${rest.planId || ''}|${rest.slug || ''}|${rest.lay || ''}|${rest.themeMode || ''}|${rest.dashboardThemeMode || ''}|${rest.themePreset || ''}|${rest.themeShape || ''}|${rest.color || ''}|${rest.bgColor || ''}|${rest.currency || ''}|${rest.logo || ''}|${rest.coverImages?.[0] || ''}|${rest.n || ''}|${rest.orderChannel || ''}|${rest.telegramNotificationsEnabled === false ? '0' : '1'}`;
+    const sig = buildRestSignature(rest, rid);
     if (syncedRestRef.current === sig) return;
     syncedRestRef.current = sig;
     setAddonsState(buildDefaultAddons(rest));
-    const candidateLay = normalizeLayoutChoice(rest.lay);
-    setSelectedLayout(isLayoutAllowed(candidateLay) ? candidateLay : 'list');
-    setMenuThemeMode(rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light');
+    if (colorSyncTimerRef.current === null) {
+      const candidateLay = normalizeLayoutChoice(rest.lay);
+      const safeLay = isLayoutAllowed(candidateLay) ? candidateLay : 'list';
+      const safeMode: 'dark' | 'light' | 'auto' =
+        rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light';
+      const safePreset =
+        rest.themePreset === 'custom'
+          ? 'custom'
+          : rest.themePreset || (safeMode === 'dark' ? 'emerald-dark' : 'clean-light');
+      const safeShape = normalizeShapeChoice(rest.themeShape);
+      const safeColor = rest.color || '#059669';
+      const safeBg = rest.bgColor || '';
+      appearanceDraftRef.current = {
+        lay: safeLay,
+        themeMode: safeMode,
+        themePreset: safePreset,
+        themeShape: safeShape,
+        color: safeColor,
+        bgColor: safeBg,
+      };
+      setSelectedLayout(safeLay);
+      setMenuThemeMode(safeMode);
+      setMenuThemePreset(safePreset);
+      setMenuThemeShape(safeShape);
+      setRestColor(safeColor);
+      setRestBgColor(safeBg);
+    }
     setDashboardThemeMode(resolveDashboardPref(rest));
-    setMenuThemePreset(
-      rest.themePreset === 'custom'
-        ? 'custom'
-        : rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light')
-    );
-    setMenuThemeShape(normalizeShapeChoice(rest.themeShape));
-    setRestColor(rest.color || '#059669');
-    setRestBgColor(rest.bgColor || '');
     setCoverUrlInput(rest.coverImages?.[0] || '');
     setLogoUrlInput(rest.logo || '');
     setAboutTextInput(rest.aboutText || '');
@@ -1860,20 +1897,75 @@ function useDashboardController({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const commitAppearanceDraft = async (
+    patch: Partial<{
+      lay: MenuLayout;
+      themeMode: 'dark' | 'light' | 'auto';
+      themePreset: string;
+      themeShape: MenuThemeShape;
+      color: string;
+      bgColor: string;
+    }>
+  ) => {
+    const merged = { ...appearanceDraftRef.current, ...patch };
+    appearanceDraftRef.current = merged;
+    if (colorSyncTimerRef.current !== null) {
+      window.clearTimeout(colorSyncTimerRef.current);
+      colorSyncTimerRef.current = null;
+    }
+    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
+    const isCustom = merged.themePreset === 'custom' && resolvedPlan.perms.customColors;
+    const nextPayload: Restaurant = {
+      ...latestRest,
+      lay: merged.lay,
+      themeMode: merged.themeMode,
+      themePreset: merged.themePreset,
+      themeShape: merged.themeShape,
+      color: merged.color,
+      bgColor: isCustom ? (merged.bgColor.trim() || undefined) : undefined,
+    };
+    syncedRestRef.current = buildRestSignature(ensureRestaurantDefaults(nextPayload), rid);
+    await putItemAndSync<Restaurant>(`restaurants/${rid}`, nextPayload);
+  };
+
+  const flushPendingAppearanceSave = async () => {
+    if (colorSyncTimerRef.current !== null) {
+      window.clearTimeout(colorSyncTimerRef.current);
+      colorSyncTimerRef.current = null;
+      await commitAppearanceDraft({});
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (colorSyncTimerRef.current !== null) {
+        window.clearTimeout(colorSyncTimerRef.current);
+        colorSyncTimerRef.current = null;
+        const merged = appearanceDraftRef.current;
+        const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
+        const isCustom = merged.themePreset === 'custom' && resolvedPlan.perms.customColors;
+        putItem<Restaurant>(`restaurants/${rid}`, {
+          ...latestRest,
+          lay: merged.lay,
+          themeMode: merged.themeMode,
+          themePreset: merged.themePreset,
+          themeShape: merged.themeShape,
+          color: merged.color,
+          bgColor: isCustom ? (merged.bgColor.trim() || undefined) : undefined,
+        });
+      }
+    };
+  }, [rid]);
+
   const handleInstantLayoutSelect = (layId: MenuLayout) => {
     if (!isLayoutAllowed(layId)) {
       showToast('هذا النمط متاح في الباقات الأعلى 🔒');
       return;
     }
     setSelectedLayout(layId);
-    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
-    putItem<Restaurant>(`restaurants/${rid}`, {
-      ...latestRest,
-      lay: layId,
-    });
-    onRefresh();
+    void commitAppearanceDraft({ lay: layId });
     const def = LAYOUT_DEFINITIONS.find((l) => l.id === layId);
-    showToast(`تم تطبيق "${def?.title || layId}" على المنيو مباشرة ✓`);
+    showToast(`تم تطبيق "${def?.title || layId}" وحفظه تلقائياً ✓`);
   };
 
   const handleSelectThemeMode = (mode: 'dark' | 'light' | 'auto') => {
@@ -1882,35 +1974,36 @@ function useDashboardController({
       return;
     }
     const effectiveMode = resolveEffectiveThemeMode(mode);
-    const isCustom = menuThemePreset === 'custom' && resolvedPlan.perms.customColors;
+    const curPreset = appearanceDraftRef.current.themePreset;
+    const isCustom = curPreset === 'custom' && resolvedPlan.perms.customColors;
     const allowed = getAllowedThemesForPlan(resolvedPlan);
     const nextPreset = isCustom
       ? 'custom'
-      : allowed.some((t) => t.id === menuThemePreset)
-      ? menuThemePreset
+      : allowed.some((t) => t.id === curPreset)
+      ? curPreset
       : allowed[0]?.id || (effectiveMode === 'light' ? 'clean-light' : 'emerald-dark');
     const chosenTheme = getMenuThemeById(nextPreset === 'custom' ? undefined : nextPreset, effectiveMode);
+    const resolvedPreset = isCustom ? 'custom' : chosenTheme.id;
+    const resolvedColor = isCustom ? appearanceDraftRef.current.color : chosenTheme.brand;
+    const resolvedBg = isCustom ? appearanceDraftRef.current.bgColor : '';
     setMenuThemeMode(mode);
-    setMenuThemePreset(isCustom ? 'custom' : chosenTheme.id);
+    setMenuThemePreset(resolvedPreset);
     if (!isCustom) {
-      setRestColor(chosenTheme.brand);
+      setRestColor(resolvedColor);
       setRestBgColor('');
     }
-    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
-    putItem<Restaurant>(`restaurants/${rid}`, {
-      ...latestRest,
+    void commitAppearanceDraft({
       themeMode: mode,
-      themePreset: isCustom ? 'custom' : chosenTheme.id,
-      color: isCustom ? restColor : chosenTheme.brand,
-      bgColor: isCustom ? (restBgColor.trim() || undefined) : undefined,
+      themePreset: resolvedPreset,
+      color: resolvedColor,
+      bgColor: resolvedBg,
     });
-    onRefresh();
     showToast(
       mode === 'auto'
-        ? 'تم ضبط مظهر المنيو حسب جهاز الزبون 📱'
+        ? 'تم حفظ مظهر المنيو حسب جهاز الزبون 📱'
         : mode === 'light'
-        ? 'تم تفعيل المظهر الفاتح للمنيو ☀️'
-        : 'تم تفعيل المظهر الغامق للمنيو 🌙'
+        ? 'تم حفظ المظهر الفاتح للمنيو ☀️'
+        : 'تم حفظ المظهر الغامق للمنيو 🌙'
     );
   };
 
@@ -1938,20 +2031,16 @@ function useDashboardController({
         openUpgradeModal('vip');
         return;
       }
-      const nextBrand = restColor.trim() || '#10B981';
-      const nextBg = restBgColor.trim();
+      const nextBrand = (appearanceDraftRef.current.color || restColor).trim() || '#10B981';
+      const nextBg = (appearanceDraftRef.current.bgColor || restBgColor).trim();
       setMenuThemePreset('custom');
       setRestColor(nextBrand);
-      const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
-      putItem<Restaurant>(`restaurants/${rid}`, {
-        ...latestRest,
-        themeMode: menuThemeMode,
+      void commitAppearanceDraft({
         themePreset: 'custom',
         color: nextBrand,
-        bgColor: nextBg || undefined,
+        bgColor: nextBg,
       });
-      onRefresh();
-      showToast('تم تفعيل الألوان المخصصة على المنيو ✓');
+      showToast('تم تفعيل وحفظ الألوان المخصصة للمنيو ✓');
       return;
     }
 
@@ -1960,21 +2049,17 @@ function useDashboardController({
       showToast('هذا المظهر متاح في الباقات الأعلى 🔒');
       return;
     }
-    const effectiveMode = resolveEffectiveThemeMode(menuThemeMode);
+    const effectiveMode = resolveEffectiveThemeMode(appearanceDraftRef.current.themeMode);
     const chosenTheme = getMenuThemeById(presetId, effectiveMode);
     setMenuThemePreset(chosenTheme.id);
     setRestColor(chosenTheme.brand);
     setRestBgColor('');
-    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
-    putItem<Restaurant>(`restaurants/${rid}`, {
-      ...latestRest,
-      themeMode: menuThemeMode,
+    void commitAppearanceDraft({
       themePreset: chosenTheme.id,
       color: chosenTheme.brand,
-      bgColor: undefined,
+      bgColor: '',
     });
-    onRefresh();
-    showToast(`تم تطبيق ألوان "${chosenTheme.name}" على المنيو ✓`);
+    showToast(`تم تطبيق وحفظ ألوان "${chosenTheme.name}" ✓`);
   };
 
   const handleUpdateCustomColors = (nextBrand?: string, nextBg?: string) => {
@@ -1982,32 +2067,44 @@ function useDashboardController({
       openUpgradeModal('vip');
       return;
     }
-    const resolvedBrand = (nextBrand !== undefined ? nextBrand : restColor).trim() || '#10B981';
-    const resolvedBg = nextBg !== undefined ? nextBg.trim() : restBgColor.trim();
+    const curDraft = appearanceDraftRef.current;
+    const resolvedBrand = (nextBrand !== undefined ? nextBrand : curDraft.color).trim() || '#10B981';
+    const resolvedBg = nextBg !== undefined ? nextBg.trim() : curDraft.bgColor.trim();
+    appearanceDraftRef.current = {
+      ...curDraft,
+      themePreset: 'custom',
+      color: resolvedBrand,
+      bgColor: resolvedBg,
+    };
     setMenuThemePreset('custom');
     if (nextBrand !== undefined) setRestColor(resolvedBrand);
     if (nextBg !== undefined) setRestBgColor(resolvedBg);
-    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
-    putItem<Restaurant>(`restaurants/${rid}`, {
-      ...latestRest,
-      themeMode: menuThemeMode,
-      themePreset: 'custom',
-      color: resolvedBrand,
-      bgColor: resolvedBg || undefined,
-    });
-    onRefresh();
+    if (colorSyncTimerRef.current !== null) {
+      window.clearTimeout(colorSyncTimerRef.current);
+    }
+    colorSyncTimerRef.current = window.setTimeout(() => {
+      colorSyncTimerRef.current = null;
+      void commitAppearanceDraft({});
+    }, 180);
   };
 
   const handleSelectThemeShape = (shapeId: MenuThemeShape) => {
     setMenuThemeShape(shapeId);
-    const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
-    putItem<Restaurant>(`restaurants/${rid}`, {
-      ...latestRest,
-      themeShape: shapeId,
-    });
-    onRefresh();
+    void commitAppearanceDraft({ themeShape: shapeId });
     const shapeDef = MENU_SHAPES.find((s) => s.id === shapeId);
-    showToast(`تم تطبيق شكل "${shapeDef?.name || shapeId}" على المنيو ✓`);
+    showToast(`تم تطبيق وحفظ شكل "${shapeDef?.name || shapeId}" ✓`);
+  };
+
+  const handleSaveAppearance = async () => {
+    if (appearanceSaving) return;
+    setAppearanceSaving(true);
+    try {
+      await commitAppearanceDraft({});
+      onRefresh();
+      showToast('تم حفظ وتطبيق كافة تغييرات المظهر على المنيو بنجاح ✓');
+    } finally {
+      setAppearanceSaving(false);
+    }
   };
 
   const handleCurrencyChange = (nextCurrency: string) => {
@@ -2391,6 +2488,9 @@ function useDashboardController({
     showBannerUrlField,
     setShowBannerUrlField,
     handleInstantLayoutSelect,
+    handleSaveAppearance,
+    flushPendingAppearanceSave,
+    appearanceSaving,
     handleCurrencyChange,
     handleSaveSettings,
     orderFilter,

@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   FontTypographyConfig,
   HomeSettings,
@@ -115,6 +116,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
   onRefresh,
   showToast,
 }) => {
+  const prefersReducedMotion = useReducedMotion();
   const isSuperAdmin = !session.staffId;
   const rawPerms: StaffPermissions = session.permissions || {};
   const staffPerms: StaffPermissions = isSuperAdmin
@@ -893,6 +895,12 @@ export const AdminView: React.FC<AdminViewProps> = ({
           </div>
         </header>
 
+        <motion.div
+          key={effectiveTab}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+        >
         {/* ============================================================== */}
         {/* TAB 0: HOME REST STATION / LOUNGE (الصفحة الرئيسية - محطة الاستراحة) */}
         {/* ============================================================== */}
@@ -935,29 +943,59 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
             {/* Core Metrics */}
             <div className="kp k4" style={{ margin: '18px 0' }}>
-              <div className="card">
-                <div className="v">{paidPartners.length}</div>
+              <motion.div
+                className="card"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.04, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              >
+                <div className="v tabular-nums">{paidPartners.length}</div>
                 <div className="l">الشركاء المشتركون (باقة مدفوعة) 🌟</div>
-              </div>
-              <div className="card">
-                <div className="v">{trialPartners.length}</div>
+              </motion.div>
+              <motion.div
+                className="card"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.09, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              >
+                <div className="v tabular-nums">{trialPartners.length}</div>
                 <div className="l">المنيوات التجريبية المجانية 🆓</div>
-              </div>
-              <div className="card">
-                <div className="v">{totalOrdersCount}</div>
+              </motion.div>
+              <motion.div
+                className="card"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              >
+                <div className="v tabular-nums">{totalOrdersCount}</div>
                 <div className="l">إجمالي الطلبات بالمنصة 📦</div>
-              </div>
-              <div className="card">
-                <div className="v">{thisMonthOrdersCount}</div>
+              </motion.div>
+              <motion.div
+                className="card"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.19, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              >
+                <div className="v tabular-nums">{thisMonthOrdersCount}</div>
                 <div className="l">طلبات هذا الشهر 📈</div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Live Server Status & Cloud Infrastructure (/api/db-status) */}
             <SystemInfrastructureCard health={systemDbHealth} />
 
             {/* Embedded Activity Log (سجل النشاطات مدمج هنا لرؤية حركات المشرفين) */}
-            <div className="card">
+            <motion.div
+              className="card"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.06 }}
+              transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+            >
               <div
                 style={{
                   display: 'flex',
@@ -1078,7 +1116,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
 
@@ -1121,7 +1159,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
             {/* Quick Experience Action Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '12px', marginBottom: '18px' }}>
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <motion.div
+                className="card"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.04, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+              >
                 <div>
                   <div style={{ fontSize: '26px', marginBottom: '6px' }}>🛠️</div>
                   <h3 style={{ fontSize: '15.5px', marginBottom: '5px' }}>تعديل المنيو التجريبي بالكامل</h3>
@@ -1137,9 +1182,16 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 >
                   الدخول وتعديل الأصناف الآن ⚙️
                 </button>
-              </div>
+              </motion.div>
 
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <motion.div
+                className="card"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.09, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+              >
                 <div>
                   <div style={{ fontSize: '26px', marginBottom: '6px' }}>👁️</div>
                   <h3 style={{ fontSize: '15.5px', marginBottom: '5px' }}>معاينة المنيو كما يراه الزبون</h3>
@@ -1155,9 +1207,16 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 >
                   فتح صفحة المنيو كزبون 👈
                 </button>
-              </div>
+              </motion.div>
 
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <motion.div
+                className="card"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+              >
                 <div>
                   <div style={{ fontSize: '32px', marginBottom: '8px' }}>📱</div>
                   <h3 style={{ fontSize: '17px', marginBottom: '6px' }}>فحص إرسال طلب واتساب حقيقي</h3>
@@ -1177,11 +1236,18 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 >
                   إرسال طلب فحص لواتساب 💬
                 </a>
-              </div>
+              </motion.div>
             </div>
 
             {/* Live Interactive Phone Simulator (Real iPhone Size) */}
-            <div className="card" style={{ textAlign: 'center', padding: '24px 14px' }}>
+            <motion.div
+              className="card"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.08 }}
+              transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}
+              style={{ textAlign: 'center', padding: '24px 14px' }}
+            >
               <h3 style={{ marginBottom: '6px', fontSize: '18px' }}>محاكي الآيفون التفاعلي الحي</h3>
               <p className="muted" style={{ fontSize: '13px', marginBottom: '20px' }}>
                 هكذا يظهر المنيو التجريبي لعملائك على شاشات الآيفون الحقيقية مع ألوان المنصة المعتمدة:
@@ -1208,7 +1274,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   <div className="iphone-home-bar" />
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
 
@@ -1335,7 +1401,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
               <div className="mp-admin-settings-sections">
               {/* Frame 1: Admin & Customer Dashboard Themes */}
-              <div id="adm-general" className="mp-framed-wrap">
+              <motion.div
+                id="adm-general"
+                className="mp-framed-wrap"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.06 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
                 <div className="mp-framed-title">
                   <span>مظهر لوحة الإدارة ولوحة تحكم الزبائن</span>
                 </div>
@@ -1522,7 +1595,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     );
                   })()}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Frame 1.5: Simple Site Font Switcher (Google Fonts) */}
               {(() => {
@@ -1553,7 +1626,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 const curLineHeight = Number(curTypo.bodyLineHeight || 1.7);
 
                 return (
-                  <div id="adm-fonts" className="mp-framed-wrap">
+                  <motion.div
+                    id="adm-fonts"
+                    className="mp-framed-wrap"
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.06 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  >
                     <div className="mp-framed-title" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
                         <Type size={15} style={{ color: 'var(--brand-ink, #34D399)' }} />
@@ -1753,12 +1833,19 @@ export const AdminView: React.FC<AdminViewProps> = ({
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })()}
 
               {/* Frame 2: Compact Payment Numbers & Support WhatsApp */}
-              <div id="adm-payment" className="mp-framed-wrap">
+              <motion.div
+                id="adm-payment"
+                className="mp-framed-wrap"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.06 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
                 <div className="mp-framed-title">
                   <Wallet size={15} style={{ color: 'var(--brand-ink, #34D399)' }} />
                   <span>بيانات استلام الدفع للاشتراكات (زين كاش / كي كارد)</span>
@@ -1812,10 +1899,16 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     />
                   </label>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Frames 3 & 4: Side-by-Side Equal-Sized Menu Button Lists (Admin + Customer Tabs) */}
-              <div className="mp-tabs-dual-grid">
+              <motion.div
+                className="mp-tabs-dual-grid"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.06 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
                 <div id="adm-tabs-admin" className="mp-framed-wrap mp-tabs-col">
                   <div className="mp-framed-title">
                     <span>أسماء وترتيب قوائم لوحة الإدارة</span>
@@ -1985,11 +2078,18 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Frame 5: Plan Features Customization & Top-to-Bottom Reordering */}
               {(isSuperAdmin || Boolean(staffPerms.canManagePlans)) && editPlans.length > 0 && (
-                <div id="adm-plan-features" className="mp-framed-wrap">
+                <motion.div
+                  id="adm-plan-features"
+                  className="mp-framed-wrap"
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.06 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
                   <div className="mp-framed-title" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                     <span>تعديل وترتيب ميزات الباقات في الصفحة الرئيسية (من الأعلى للأسفل)</span>
                     <button
@@ -2010,7 +2110,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                       showToast={showToast}
                     />
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {/* Frame 6: Telegram Order Notification Bot Settings */}
@@ -2041,7 +2141,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
             showToast={showToast}
           />
         )}
-
+        </motion.div>
 
       </main>
     </div>

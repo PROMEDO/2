@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   Edit,
   Eye,
@@ -19,6 +20,7 @@ import { getAddonRequiredPlanLabel, isAddonAllowedForPlan } from '../../utils/pl
 import { playBellTone, surfaceCardStyle, themedInputStyle, useDashboard } from './DashboardContext';
 
 export const AddonsPage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     resolvedPlan,
     customTabLabel,
@@ -45,7 +47,12 @@ export const AddonsPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}>
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+        style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}
+      >
         <div>
           <h1 style={{ fontSize: '26px', fontWeight: 900, color: 'var(--ink)', margin: '0 0 6px' }}>
             {customTabLabel('addons', 'متجر الإضافات والميزات التفاعلية ⚡')}
@@ -67,7 +74,7 @@ export const AddonsPage: React.FC = () => {
         >
           المفعلة: {enabledCount} • المتاح في باقتك ({resolvedPlan.plan.n}): {allowedAddonsCount} من {ADDON_CATALOG.length}
         </div>
-      </div>
+      </motion.div>
 
       <div
         style={{
@@ -76,14 +83,19 @@ export const AddonsPage: React.FC = () => {
           gap: '16px',
         }}
       >
-        {visibleAddons.map((addon) => {
+        {visibleAddons.map((addon, idx) => {
           const allowed = isAddonAllowedForPlan(addon.key, resolvedPlan);
           const reqLabel = getAddonRequiredPlanLabel(addon.key);
           const cfg = (addonsState[addon.key] || {}) as Record<string, any>;
           const isEnabled = allowed && Boolean(cfg.enabled);
           return (
-            <div
+            <motion.div
               key={addon.key}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: allowed ? 1 : 0.72, y: 0 }}
+              viewport={{ once: true, amount: 0.08 }}
+              transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : Math.min((idx % 6) * 0.04, 0.2), ease: [0.16, 1, 0.3, 1] }}
+              whileHover={prefersReducedMotion ? undefined : { y: -2 }}
               style={{
                 background: 'var(--surface)',
                 border: isEnabled ? '1.5px solid var(--brand)' : '1px solid color-mix(in srgb, var(--line) 75%, transparent)',
@@ -242,7 +254,7 @@ export const AddonsPage: React.FC = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -251,7 +263,10 @@ export const AddonsPage: React.FC = () => {
       {editingAddonKey && (
         <>
           <div className="drawer-backdrop" onClick={() => setEditingAddonKey(null)} />
-          <div
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: 'fixed',
               top: '50%',
@@ -1136,7 +1151,7 @@ export const AddonsPage: React.FC = () => {
                 </form>
               );
             })()}
-          </div>
+          </motion.div>
         </>
       )}
 

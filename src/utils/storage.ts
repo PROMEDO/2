@@ -1229,7 +1229,30 @@ export function saveStore(store: StoreData) {
   }
 }
 
-export async function pushDbDiff(diff: {
+const recentLocalWriteTs = new Map<string, number>();
+let activePushCount = 0;
+let pushQueue: Promise<unknown> = Promise.resolve();
+
+function markLocalWriteKeys(put?: Record<string, unknown>, del?: string[]) {
+  const now = Date.now();
+  if (put) {
+    for (const k of Object.keys(put)) {
+      recentLocalWriteTs.set(k, now);
+    }
+  }
+  if (del) {
+    for (const k of del) {
+      recentLocalWriteTs.set(k, now);
+    }
+  }
+  if (recentLocalWriteTs.size > 150) {
+    for (const [k, ts] of recentLocalWriteTs.entries()) {
+      if (now - ts > 30000) recentLocalWriteTs.delete(k);
+    }
+  }
+}
+
+async function performPushDbDiff(diff: {
   put?: Record<string, unknown>;
   del?: string[];
 }): Promise<{ assignedOrderSeqs?: Record<string, number> }> {
@@ -1275,6 +1298,27 @@ export async function pushDbDiff(diff: {
     // offline standalone fallback
   }
   return {};
+}
+
+export function pushDbDiff(diff: {
+  put?: Record<string, unknown>;
+  del?: string[];
+}): Promise<{ assignedOrderSeqs?: Record<string, number> }> {
+  markLocalWriteKeys(diff.put, diff.del);
+  activePushCount += 1;
+  const run = pushQueue.then(
+    () => performPushDbDiff(diff),
+    () => performPushDbDiff(diff)
+  );
+  pushQueue = run.then(
+    () => {
+      activePushCount = Math.max(0, activePushCount - 1);
+    },
+    () => {
+      activePushCount = Math.max(0, activePushCount - 1);
+    }
+  );
+  return run;
 }
 
 export async function flushRemoteSync(): Promise<void> {
@@ -1952,6 +1996,10 @@ export function migrateBrandInStore(store: StoreData, syncRemote = false): void 
 }
 
 export async function syncFromServer(): Promise<boolean> {
+  if (activePushCount > 0) {
+    await pushQueue.catch(() => undefined);
+  }
+  const fetchStartedAt = Date.now();
   const local = loadStore();
   if (typeof fetch !== 'undefined') {
     try {
@@ -1964,7 +2012,8 @@ export async function syncFromServer(): Promise<boolean> {
         const remote = (await res.json()) as StoreData;
         if (remote && typeof remote === 'object' && Object.keys(remote).length > 0) {
           const curSes = getSession();
-          const cleanedLocal: StoreData = { ...local };
+          const latestLocal = loadStore();
+          const cleanedLocal: StoreData = { ...latestLocal };
           // Unauthenticated /api/db intentionally omits private accounts/* & staff/*;
           // purge stale cached partner accounts/staff from localStorage so deleted users never linger
           if (!curSes) {
@@ -1980,6 +2029,16 @@ export async function syncFromServer(): Promise<boolean> {
             }
           }
           const merged: StoreData = { ...cleanedLocal, ...remote };
+          // Protect any key written locally right before or while the GET /api/db was in flight
+          for (const [k, writeTs] of recentLocalWriteTs.entries()) {
+            if (writeTs >= fetchStartedAt - 1500) {
+              if (Object.prototype.hasOwnProperty.call(cleanedLocal, k)) {
+                merged[k] = cleanedLocal[k];
+              } else {
+                delete merged[k];
+              }
+            }
+          }
           // Preserve newer demoVersion locally if remote has older demo schema
           const localDemo = local['restaurants/demo'] as Restaurant | undefined;
           const remoteDemo = remote['restaurants/demo'] as Restaurant | undefined;

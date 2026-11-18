@@ -4,11 +4,13 @@
  */
 
 import React from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Copy, ExternalLink, Lock, Share2 } from 'lucide-react';
 import { QRCodeView } from '../../components/QRCodeView';
 import { surfaceCardStyle, useDashboard } from './DashboardContext';
 
 export const QrPage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     rest,
     resolvedPlan,
@@ -24,17 +26,27 @@ export const QrPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
-      <div style={{ marginBottom: '22px' }}>
+      <motion.div
+        style={{ marginBottom: '22px' }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+      >
         <h1 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: 900, color: 'var(--ink)' }}>
           {customTabLabel('qr', 'كود الـ QR ورابط المنيو 📱')}
         </h1>
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--muted)' }}>
           تحميل وطباعة باركود الـ QR بدقة فائقة للمطعم وكروت الطاولات.
         </p>
-      </div>
+      </motion.div>
 
       {!resolvedPlan.perms.qrCode ? (
-        <div style={{ ...surfaceCardStyle, padding: '36px 24px', borderRadius: '20px' }}>
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.42, delay: prefersReducedMotion ? 0 : 0.06, ease: [0.16, 1, 0.3, 1] }}
+          style={{ ...surfaceCardStyle, padding: '36px 24px', borderRadius: '20px' }}
+        >
           <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(245, 158, 11, 0.14)', color: '#f59e0b', display: 'grid', placeItems: 'center', margin: '0 auto 14px' }}>
             <Lock size={26} />
           </div>
@@ -72,9 +84,14 @@ export const QrPage: React.FC = () => {
               ترقية الباقة لتفعيل QR
             </button>
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div style={{ ...surfaceCardStyle, padding: '30px 20px', borderRadius: '20px' }}>
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.44, delay: prefersReducedMotion ? 0 : 0.06, ease: [0.16, 1, 0.3, 1] }}
+          style={{ ...surfaceCardStyle, padding: '30px 20px', borderRadius: '20px' }}
+        >
           <h3 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '6px', color: 'var(--ink)' }}>
             {rest.n}
           </h3>
@@ -130,7 +147,7 @@ export const QrPage: React.FC = () => {
               </button>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

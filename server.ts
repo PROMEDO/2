@@ -961,13 +961,19 @@ app.post('/api/onboard/profile', async (req, res) => {
     if (typeof body.aboutText === 'string') {
       nextRest.aboutText = body.aboutText.trim().slice(0, 800);
     }
-    if (body.themeMode === 'light' || body.themeMode === 'dark') {
+    if (body.themeMode === 'light' || body.themeMode === 'dark' || body.themeMode === 'auto') {
       nextRest.themeMode = body.themeMode;
     }
     if (typeof body.color === 'string' && /^#[0-9a-f]{3,8}$/i.test(body.color.trim())) {
       nextRest.color = body.color.trim();
     }
-    if (body.lay === 'list' || body.lay === 'grid' || body.lay === 'cards') {
+    if (
+      body.lay === 'list' ||
+      body.lay === 'grid' ||
+      body.lay === 'grid3' ||
+      body.lay === 'grid4' ||
+      body.lay === 'cards'
+    ) {
       nextRest.lay = body.lay;
     }
     if (body.h && typeof body.h === 'object' && !Array.isArray(body.h)) {

@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   Clock,
   Edit,
@@ -27,6 +28,7 @@ import {
 } from './DashboardContext';
 
 export const CategoriesPage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     resolvedPlan,
     allCategories,
@@ -183,7 +185,12 @@ export const CategoriesPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      <div className="mp-items-toolbar">
+      <motion.div
+        className="mp-items-toolbar"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+      >
         <button
           type="button"
           onClick={openNewCategoryModal}
@@ -203,9 +210,14 @@ export const CategoriesPage: React.FC = () => {
             {catLimitText}
           </span>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mp-items-list">
+      <motion.div
+        className="mp-items-list"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : 0.05, ease: [0.16, 1, 0.3, 1] }}
+      >
         {displayCategories.map((c) => {
           const isCatVisible = c.published !== false;
           const isDragging = draggingCatId === c.id;
@@ -311,13 +323,16 @@ export const CategoriesPage: React.FC = () => {
             </div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Add / Edit Category Modal (clean name + image picker only) */}
       {showCatModal && (
         <>
           <div className="drawer-backdrop" onClick={() => setShowCatModal(false)} />
-          <div
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: 'fixed',
               top: '50%',
@@ -473,7 +488,7 @@ export const CategoriesPage: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </>
       )}
 
@@ -481,7 +496,10 @@ export const CategoriesPage: React.FC = () => {
       {scheduleModalCat && (
         <>
           <div className="drawer-backdrop" onClick={() => setScheduleModalCat(null)} />
-          <div
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: 'fixed',
               top: '50%',
@@ -560,7 +578,7 @@ export const CategoriesPage: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </>
       )}
 

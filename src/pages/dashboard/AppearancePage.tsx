@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Palette, RotateCcw, Save, Shapes } from 'lucide-react';
 import {
   MENU_SHAPES,
@@ -16,6 +16,7 @@ import {
 import { LAYOUT_DEFINITIONS, useDashboard } from './DashboardContext';
 
 export const AppearancePage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     resolvedPlan,
     isLayoutAllowed,
@@ -30,7 +31,8 @@ export const AppearancePage: React.FC = () => {
     restColor,
     restBgColor,
     handleInstantLayoutSelect,
-    handleSaveSettings,
+    handleSaveAppearance,
+    appearanceSaving,
     openUpgradeModal,
   } = useDashboard();
 
@@ -45,27 +47,23 @@ export const AppearancePage: React.FC = () => {
   const customInkPreview = customBgIsLight ? '#0f172a' : '#f8fafc';
   const customLinePreview = customBgIsLight ? 'rgba(15, 23, 42, 0.14)' : 'rgba(255, 255, 255, 0.16)';
 
+  const sectionRevealProps = {
+    initial: prefersReducedMotion ? false : { opacity: 0, y: 26, scale: 0.985 },
+    whileInView: { opacity: 1, y: 0, scale: 1 },
+    viewport: { once: true, amount: 0.12 as const },
+    transition: { duration: 0.58, ease: [0.16, 1, 0.3, 1] as const },
+  };
+
   return (
     <div className="mp-appearance-page">
-      {/* 1. Small Save Changes Button FIRST (centered on mobile) + Menu Display Mode BELOW */}
-      <motion.div
-        className="mp-appearance-top-bar"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-      >
-        <motion.button
-          type="button"
-          onClick={handleSaveSettings}
-          className="mp-appearance-save-btn"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.96 }}
+      {/* 1. Menu Display Mode (Auto-saved immediately) */}
+      {resolvedPlan.perms.lightDarkMode && (
+        <motion.div
+          className="mp-appearance-top-bar"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 20, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.52, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Save size={14} />
-          <span>حفظ التغييرات</span>
-        </motion.button>
-
-        {resolvedPlan.perms.lightDarkMode && (
           <div className="mp-appearance-mode-wrap">
             <h2 className="mp-appearance-section-title">
               اختر مظهر المنيو كيف تريده للزبائن
@@ -94,22 +92,20 @@ export const AppearancePage: React.FC = () => {
               </button>
             </div>
           </div>
-        )}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* 2. Product Display Layouts: 4 Squares (2 top, 2 bottom) */}
       <motion.section
         className="mp-appearance-section"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, delay: 0.06 }}
+        {...sectionRevealProps}
       >
         <h2 className="mp-appearance-section-title" style={{ marginBottom: '12px' }}>
           اختر طريقة عرض المنتجات
         </h2>
 
         <div className="mp-appearance-layouts-grid">
-          {LAYOUT_DEFINITIONS.map((lay) => {
+          {LAYOUT_DEFINITIONS.map((lay, idx) => {
             const isSelected = selectedLayout === lay.id;
             const layoutAllowed = isLayoutAllowed(lay.id);
             return (
@@ -119,8 +115,12 @@ export const AppearancePage: React.FC = () => {
                 onClick={() => handleInstantLayoutSelect(lay.id)}
                 className={`mp-appearance-layout-card ${isSelected ? 'selected' : ''}`}
                 style={{ opacity: layoutAllowed ? 1 : 0.65 }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+                whileInView={{ opacity: layoutAllowed ? 1 : 0.65, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: 0.5, delay: prefersReducedMotion ? 0 : idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '6px' }}>
                   <span style={{ fontSize: '24px', lineHeight: 1 }}>{lay.icon}</span>
@@ -173,9 +173,7 @@ export const AppearancePage: React.FC = () => {
       {/* 3. Menu Colors (10 Dual Light/Dark Themes + Wide 2-Column Custom Color Picker Card at the End) */}
       <motion.section
         className="mp-appearance-section"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, delay: 0.12 }}
+        {...sectionRevealProps}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--brand-ink, #34D399)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
@@ -192,7 +190,7 @@ export const AppearancePage: React.FC = () => {
         </div>
 
         <div className="mp-appearance-themes-grid">
-          {MENU_THEMES.map((theme) => {
+          {MENU_THEMES.map((theme, idx) => {
             const isUnlocked = allowedThemes.some((t) => t.id === theme.id);
             const isSelected = menuThemePreset === theme.id;
             const pal = previewMode === 'dark' ? theme.darkPalette : theme.lightPalette;
@@ -206,8 +204,12 @@ export const AppearancePage: React.FC = () => {
                   borderColor: isSelected ? pal.brand : undefined,
                   opacity: isUnlocked ? 1 : 0.62,
                 }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+                whileInView={{ opacity: isUnlocked ? 1 : 0.62, y: 0 }}
+                viewport={{ once: true, amount: 0.08 }}
+                transition={{ duration: 0.48, delay: prefersReducedMotion ? 0 : Math.min(idx * 0.04, 0.28), ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
                 <div
                   className="mp-theme-mini-preview"
@@ -254,7 +256,11 @@ export const AppearancePage: React.FC = () => {
               borderColor: isCustomSelected ? customBrandHex : undefined,
               opacity: resolvedPlan.perms.customColors ? 1 : 0.72,
             }}
-            whileHover={{ y: -2 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+            whileInView={{ opacity: resolvedPlan.perms.customColors ? 1 : 0.72, y: 0 }}
+            viewport={{ once: true, amount: 0.08 }}
+            transition={{ duration: 0.52, delay: prefersReducedMotion ? 0 : 0.2, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={prefersReducedMotion ? undefined : { y: -3 }}
           >
             <div
               className="mp-theme-mini-preview"
@@ -355,9 +361,7 @@ export const AppearancePage: React.FC = () => {
       {/* 4. Page & Card Shapes (8 Standout Interactive Shape Cards Applied Across Entire Menu) */}
       <motion.section
         className="mp-appearance-section"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, delay: 0.18 }}
+        {...sectionRevealProps}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--brand-ink, #34D399)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
@@ -374,7 +378,7 @@ export const AppearancePage: React.FC = () => {
         </div>
 
         <div className="mp-appearance-shapes-grid">
-          {MENU_SHAPES.map((shape) => {
+          {MENU_SHAPES.map((shape, idx) => {
             const isSelected = menuThemeShape === shape.id;
             return (
               <motion.button
@@ -382,8 +386,12 @@ export const AppearancePage: React.FC = () => {
                 type="button"
                 onClick={() => handleSelectThemeShape(shape.id)}
                 className={`mp-appearance-shape-card ${isSelected ? 'selected' : ''}`}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.08 }}
+                transition={{ duration: 0.48, delay: prefersReducedMotion ? 0 : Math.min(idx * 0.045, 0.28), ease: [0.16, 1, 0.3, 1] }}
+                whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
               >
                 <div className={`mp-shape-preview mp-shape-preview-${shape.id}`}>
                   <div className="mp-shape-mini-banner" />
@@ -427,6 +435,27 @@ export const AppearancePage: React.FC = () => {
           })}
         </div>
       </motion.section>
+
+      {/* 5. Bottom Save Changes Bar (auto-saves on click + explicit bottom Save button) */}
+      <motion.div
+        className="mp-appearance-bottom-save"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.54, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.button
+          type="button"
+          onClick={() => void handleSaveAppearance()}
+          disabled={appearanceSaving}
+          className="mp-appearance-save-btn is-bottom"
+          whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.96 }}
+        >
+          <Save size={15} />
+          <span>{appearanceSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}</span>
+        </motion.button>
+      </motion.div>
     </div>
   );
 };

@@ -4,6 +4,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   Cloud,
   CloudFog,
@@ -110,6 +111,7 @@ function describeWeatherCode(code: number | null, isDay: boolean): {
 }
 
 export const AdminHomeLounge: React.FC<AdminHomeLoungeProps> = () => {
+  const prefersReducedMotion = useReducedMotion();
   const [now, setNow] = useState<Date>(() => new Date());
   const [weather, setWeather] = useState<WeatherState>({
     loading: true,
@@ -339,7 +341,12 @@ export const AdminHomeLounge: React.FC<AdminHomeLoungeProps> = () => {
         }}
       >
         {/* Date & Live Local Time */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
+        >
           <div
             className="muted"
             style={{
@@ -364,11 +371,14 @@ export const AdminHomeLounge: React.FC<AdminHomeLoungeProps> = () => {
           >
             {localTimeFormatted}
           </div>
-        </div>
+        </motion.div>
 
         {/* Clean Local Weather Card */}
-        <div
+        <motion.div
           className="card"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 16, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.48, delay: prefersReducedMotion ? 0 : 0.08, ease: [0.16, 1, 0.3, 1] }}
           style={{
             width: '100%',
             padding: '22px 24px',
@@ -498,7 +508,7 @@ export const AdminHomeLounge: React.FC<AdminHomeLoungeProps> = () => {
               </div>
             </>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

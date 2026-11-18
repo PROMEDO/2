@@ -7921,8 +7921,23 @@ html[data-theme="dark"] .mp-items-count-box {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 320px;
+  gap: 160px;
   padding-bottom: 64px;
+}
+
+.mp-appearance-bottom-save {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-top: 8px;
+}
+
+.mp-appearance-save-btn.is-bottom {
+  height: 40px;
+  padding: 0 24px;
+  font-size: 13.5px;
+  border-radius: 12px;
 }
 
 .mp-appearance-top-bar {
@@ -8872,7 +8887,7 @@ html[data-theme="dark"] .mp-items-count-box {
 
 @media (max-width: 640px) {
   .mp-appearance-page {
-    gap: 280px;
+    gap: 140px;
   }
 
   .mp-appearance-top-bar {

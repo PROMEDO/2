@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   Award,
   BarChart3,
@@ -36,6 +37,7 @@ function toYmd(d: Date): string {
 }
 
 export const StatsPage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     rest,
     resolvedPlan,
@@ -293,7 +295,10 @@ export const StatsPage: React.FC = () => {
       ) : (
         <>
           {/* Period Filter Bar */}
-          <div
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
             style={{
               ...surfaceCardStyle,
               borderRadius: '18px',
@@ -373,11 +378,17 @@ export const StatsPage: React.FC = () => {
                 {periodLabel}
               </span>
             </div>
-          </div>
+          </motion.div>
 
           {/* Detailed KPIs */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-            <div style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : 0.04, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}
+            >
               <div style={{ fontSize: '12.5px', color: 'var(--muted)', marginBottom: '6px', fontWeight: 700 }}>
                 إجمالي الإيرادات
               </div>
@@ -387,9 +398,15 @@ export const StatsPage: React.FC = () => {
               <div style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '4px' }}>
                 من {validOrders.length} طلب فعّال
               </div>
-            </div>
+            </motion.div>
 
-            <div style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : 0.09, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}
+            >
               <div style={{ fontSize: '12.5px', color: 'var(--muted)', marginBottom: '6px', fontWeight: 700 }}>
                 الطلبات المسجلة
               </div>
@@ -399,9 +416,15 @@ export const StatsPage: React.FC = () => {
               <div style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '4px' }}>
                 مكتمل: {completedOrders} ({completionRate}%) • ملغى: {cancelledOrders}
               </div>
-            </div>
+            </motion.div>
 
-            <div style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}
+            >
               <div style={{ fontSize: '12.5px', color: 'var(--muted)', marginBottom: '6px', fontWeight: 700 }}>
                 متوسط قيمة الطلب
               </div>
@@ -411,9 +434,15 @@ export const StatsPage: React.FC = () => {
               <div style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '4px' }}>
                 معدل السلة للطلب الواحد
               </div>
-            </div>
+            </motion.div>
 
-            <div style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : 0.19, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+              style={{ ...surfaceCardStyle, padding: '18px 20px', borderRadius: '16px' }}
+            >
               <div style={{ fontSize: '12.5px', color: 'var(--muted)', marginBottom: '6px', fontWeight: 700 }}>
                 توزيع القنوات
               </div>
@@ -422,13 +451,19 @@ export const StatsPage: React.FC = () => {
                 <span>🏪 استلام: {pickupOrdersCount}</span>
                 {resolvedPlan.perms.tableOrders && <span>🍽️ طاولات: {tableOrdersCount}</span>}
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Top Ordered Items + Performance Insights */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             {/* Top Ordered Items */}
-            <div style={{ ...surfaceCardStyle, padding: '22px', borderRadius: '20px' }}>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.08 }}
+              transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}
+              style={{ ...surfaceCardStyle, padding: '22px', borderRadius: '20px' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <div style={{ width: '38px', height: '38px', borderRadius: '11px', background: 'rgba(245, 158, 11, 0.14)', color: '#f59e0b', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                   <Flame size={19} />
@@ -497,7 +532,11 @@ export const StatsPage: React.FC = () => {
                           </div>
                         </div>
                         <div style={{ height: '6px', borderRadius: '99px', background: 'rgba(148,163,184,0.14)', overflow: 'hidden' }}>
-                          <div
+                          <motion.div
+                            initial={prefersReducedMotion ? false : { width: 0 }}
+                            whileInView={{ width: `${pct}%` }}
+                            viewport={{ once: true, amount: 0.1 }}
+                            transition={{ duration: 0.65, delay: prefersReducedMotion ? 0 : idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
                             style={{
                               width: `${pct}%`,
                               height: '100%',
@@ -511,10 +550,16 @@ export const StatsPage: React.FC = () => {
                   })}
                 </div>
               )}
-            </div>
+            </motion.div>
 
             {/* Automated Summary & Insights */}
-            <div style={{ ...surfaceCardStyle, padding: '22px', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.08 }}
+              transition={{ duration: 0.44, delay: prefersReducedMotion ? 0 : 0.08, ease: [0.16, 1, 0.3, 1] }}
+              style={{ ...surfaceCardStyle, padding: '22px', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '38px', height: '38px', borderRadius: '11px', background: 'var(--soft)', color: 'var(--brand-ink, #34D399)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                   <TrendingUp size={19} />
@@ -549,7 +594,7 @@ export const StatsPage: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         </>
       )}

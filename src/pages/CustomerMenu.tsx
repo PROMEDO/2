@@ -77,6 +77,7 @@ import {
   getActiveMenuDiscount,
 } from '../data/addonsCatalog';
 import {
+  MENU_THEMES,
   getContrastInk,
   getMenuThemeById,
   isAddonAllowedForPlan,
@@ -342,8 +343,17 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
       ? rest.themeShape
       : 'modern';
   const isCustomPreset = rest?.themePreset === 'custom' && resolvedPlan.perms.customColors;
+  const hasKnownPreset = Boolean(
+    rest?.themePreset &&
+    rest.themePreset !== 'custom' &&
+    MENU_THEMES.some((t) => t.id === rest.themePreset)
+  );
   const currency = rest?.currency || 'د.ع';
-  const brandColor = resolvedPlan.perms.customColors && rest?.color ? rest.color : activeTheme.brand;
+  const brandColor = isCustomPreset
+    ? (rest?.color || activeTheme.brand)
+    : hasKnownPreset
+    ? activeTheme.brand
+    : (resolvedPlan.perms.customColors && rest?.color ? rest.color : activeTheme.brand);
   const customBgColor =
     isCustomPreset && rest?.bgColor
       ? rest.bgColor

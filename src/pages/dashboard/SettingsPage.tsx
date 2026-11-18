@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   AlertCircle,
   CheckCircle2,
@@ -39,6 +40,7 @@ import {
 } from './DashboardContext';
 
 export const SettingsPage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     lang,
     setLang,
@@ -140,7 +142,12 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '920px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+        style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}
+      >
         <div>
           <h1 style={{ margin: '0 0 4px', fontSize: '23px', fontWeight: 900, color: 'var(--ink)' }}>
             {customTabLabel('set', 'إعدادات المشروع والرابط المخصص ⚙️')}
@@ -158,10 +165,15 @@ export const SettingsPage: React.FC = () => {
           <Save size={16} />
           <span>حفظ جميع الإعدادات</span>
         </button>
-      </div>
+      </motion.div>
 
       {/* Continuous Section Quick Jump Strip */}
-      <div className="mp-jump-strip">
+      <motion.div
+        className="mp-jump-strip"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.36, delay: prefersReducedMotion ? 0 : 0.05, ease: [0.16, 1, 0.3, 1] }}
+      >
         {[
           { id: 'sec-lang', label: '1. اللغة والعملة والتشغيل' },
           { id: 'sec-slug', label: '2. الرابط والدومين' },
@@ -178,7 +190,7 @@ export const SettingsPage: React.FC = () => {
             {sec.label}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       <form
         onSubmit={(e) => {
@@ -188,7 +200,14 @@ export const SettingsPage: React.FC = () => {
         className="mp-settings-sections"
       >
         {/* SECTION 1: اللغة والعملة وحالة التشغيل وطرق الطلب */}
-        <section id="sec-lang" className="mp-set-sec">
+        <motion.section
+          id="sec-lang"
+          className="mp-set-sec"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.06 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="mp-set-sec-head">
             <h2 className="mp-set-sec-title">
               <span className="mp-set-sec-num">1</span>
@@ -654,10 +673,17 @@ export const SettingsPage: React.FC = () => {
               )}
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* SECTION 2: رابط المنيو المخصص باسم حسابك */}
-        <section id="sec-slug" className="mp-set-sec">
+        <motion.section
+          id="sec-slug"
+          className="mp-set-sec"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.06 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="mp-set-sec-head">
             <h2 className="mp-set-sec-title">
               <span className="mp-set-sec-num">2</span>
@@ -888,10 +914,17 @@ export const SettingsPage: React.FC = () => {
               </>
             )}
           </div>
-        </section>
+        </motion.section>
 
         {/* SECTION 3: شعار المنيو وصورة الغلاف */}
-        <section id="sec-media" className="mp-set-sec">
+        <motion.section
+          id="sec-media"
+          className="mp-set-sec"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.06 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="mp-set-sec-head">
             <h2 className="mp-set-sec-title">
               <span className="mp-set-sec-num">3</span>
@@ -1130,10 +1163,17 @@ export const SettingsPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* SECTION 4: هوية المشروع، نبذة عن المشروع، والتواصل */}
-        <section id="sec-identity" className="mp-set-sec">
+        <motion.section
+          id="sec-identity"
+          className="mp-set-sec"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.06 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="mp-set-sec-head">
             <h2 className="mp-set-sec-title">
               <span className="mp-set-sec-num">4</span>
@@ -1379,10 +1419,17 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* SECTION 5: ساعات العمل ومناطق التوصيل */}
-        <section id="sec-delivery" className="mp-set-sec">
+        <motion.section
+          id="sec-delivery"
+          className="mp-set-sec"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.06 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div className="mp-set-sec-head">
             <h2 className="mp-set-sec-title">
               <span className="mp-set-sec-num">5</span>
@@ -1723,7 +1770,7 @@ export const SettingsPage: React.FC = () => {
               )}
             </div>
           </div>
-        </section>
+        </motion.section>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button type="submit" className="btn p" style={{ fontWeight: 800, padding: '13px 28px', fontSize: '15px' }}>

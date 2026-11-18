@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Eye, GitBranch, LogOut, MessageCircle, Share2, Store, X } from 'lucide-react';
 import { AppLogo } from '../../components/AppLogo';
 import { AjaxConfirmModal } from '../../components/AjaxConfirmModal';
@@ -30,6 +31,7 @@ import { SettingsPage } from './SettingsPage';
 import { TelegramPage } from './TelegramPage';
 
 const DashboardShell: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     isRtl,
     site,
@@ -59,6 +61,7 @@ const DashboardShell: React.FC = () => {
     newOrdersCount,
     ajaxDialog,
     setAjaxDialog,
+    flushPendingAppearanceSave,
     onNavigate,
     onLogout,
     showToast,
@@ -435,7 +438,10 @@ const DashboardShell: React.FC = () => {
             <button
               type="button"
               className="mp-dash-topbar-btn is-primary"
-              onClick={() => onNavigate(publicPath)}
+              onClick={() => {
+                void flushPendingAppearanceSave();
+                onNavigate(publicPath);
+              }}
               aria-label="معاينة المنيو"
               title="معاينة المنيو"
             >
@@ -445,7 +451,12 @@ const DashboardShell: React.FC = () => {
           </div>
         </header>
 
-        <div>
+        <motion.div
+          key={activeTab}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+        >
           {activeTab === 'home' && <HomePage />}
           {activeTab === 'cats' && <CategoriesPage />}
           {activeTab === 'menu' && <ItemsPage />}
@@ -457,7 +468,7 @@ const DashboardShell: React.FC = () => {
           {activeTab === 'qr' && <QrPage />}
           {activeTab === 'telegram' && <TelegramPage />}
           {activeTab === 'set' && <SettingsPage />}
-        </div>
+        </motion.div>
       </main>
 
       <AjaxConfirmModal

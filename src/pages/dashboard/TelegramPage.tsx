@@ -4,6 +4,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   AlertCircle,
   Bell,
@@ -63,6 +64,7 @@ function sanitizeTelegramProxyLink(raw: string): string {
 }
 
 export const TelegramPage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const { rid, rest, showToast, onRefresh, setActiveTab } = useDashboard();
 
   const [loading, setLoading] = useState(true);
@@ -341,7 +343,13 @@ export const TelegramPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-      <div className="hd" style={{ marginBottom: '16px' }}>
+      <motion.div
+        className="hd"
+        style={{ marginBottom: '16px' }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             <Send size={20} style={{ color: '#0088cc' }} />
@@ -363,7 +371,7 @@ export const TelegramPage: React.FC = () => {
         <p className="muted" style={{ margin: '6px 0 0', fontSize: '13.5px', lineHeight: 1.6 }}>
           ضع رقم هاتفك وشاركه مع بوت تيليجرام ليصلك كل طلب جديد يرسله الزبائن مباشرة إلى حسابك في تيليجرام.
         </p>
-      </div>
+      </motion.div>
 
       {loading ? (
         <div className="card" style={{ ...surfaceCardStyle, padding: '28px', textAlign: 'center' }}>
@@ -371,7 +379,13 @@ export const TelegramPage: React.FC = () => {
           <div className="muted" style={{ fontSize: '13.5px' }}>جاري التحقق من حالة الربط...</div>
         </div>
       ) : (
-        <div className="card" style={{ ...surfaceCardStyle, padding: '22px' }}>
+        <motion.div
+          className="card"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          style={{ ...surfaceCardStyle, padding: '22px' }}
+        >
           {botUnavailable && (
             <div className="mp-inline-status is-err" style={{ marginBottom: '16px' }}>
               <AlertCircle size={17} style={{ flexShrink: 0 }} />
@@ -584,12 +598,16 @@ export const TelegramPage: React.FC = () => {
               )}
             </form>
           )}
-        </div>
+        </motion.div>
       )}
 
       {!loading && (
-        <div
+        <motion.div
           className="card"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.08 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
           style={{
             ...surfaceCardStyle,
             padding: '18px 20px',
@@ -722,12 +740,16 @@ export const TelegramPage: React.FC = () => {
               </div>
             </form>
           )}
-        </div>
+        </motion.div>
       )}
 
       {!loading && status && (
-        <div
+        <motion.div
           className="card"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.08 }}
+          transition={{ duration: 0.42, delay: prefersReducedMotion ? 0 : 0.05, ease: [0.16, 1, 0.3, 1] }}
           style={{
             ...surfaceCardStyle,
             padding: '18px 20px',
@@ -849,7 +871,7 @@ export const TelegramPage: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

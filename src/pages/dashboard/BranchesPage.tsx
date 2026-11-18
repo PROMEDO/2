@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   CheckCircle2,
   Copy,
@@ -20,6 +21,7 @@ import { getFullSubdomainUrl, getPublicMenuUrlPath } from '../../utils/businessD
 import { surfaceCardStyle, themedInputStyle, useDashboard } from './DashboardContext';
 
 export const BranchesPage: React.FC = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     mainRid,
     activeRid,
@@ -69,7 +71,12 @@ export const BranchesPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1020px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+        style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}
+      >
         <div>
           <h1 style={{ margin: '0 0 6px', fontSize: '25px', fontWeight: 900, color: 'var(--ink)' }}>
             {customTabLabel('branches', 'إدارة الأفرع المتعددة 🏢')}
@@ -94,10 +101,13 @@ export const BranchesPage: React.FC = () => {
             الحد المسموح ({resolvedPlan.plan.n}): {quotaLabel}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {isLocked ? (
-        <div
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : 0.05, ease: [0.16, 1, 0.3, 1] }}
           style={{
             ...surfaceCardStyle,
             borderRadius: '20px',
@@ -147,12 +157,15 @@ export const BranchesPage: React.FC = () => {
               <span style={{ fontSize: '12.5px', color: 'var(--muted)' }}>تنقّل بين أفرعك من نفس لوحة التحكم دون الحاجة لتسجيل الخروج أو إنشاء حسابات جديدة.</span>
             </div>
           </div>
-        </div>
+        </motion.div>
       ) : (
         <>
           {/* Create New Branch Form */}
-          <form
+          <motion.form
             onSubmit={handleCreate}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : 0.05, ease: [0.16, 1, 0.3, 1] }}
             style={{ ...surfaceCardStyle, borderRadius: '20px', padding: '22px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -231,7 +244,7 @@ export const BranchesPage: React.FC = () => {
                 <span>{atLimit ? 'الحد مكتمل 🔒' : 'إنشاء الفرع وتفعيله'}</span>
               </button>
             </div>
-          </form>
+          </motion.form>
 
           {/* Main Branch + Child Branches List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -243,7 +256,11 @@ export const BranchesPage: React.FC = () => {
               const mainUrl = getBranchUrl(mainRest);
 
               return (
-                <div
+                <motion.div
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.08 }}
+                  transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
                   style={{
                     ...surfaceCardStyle,
                     borderRadius: '18px',
@@ -313,7 +330,7 @@ export const BranchesPage: React.FC = () => {
                       </button>
                     )}
                   </div>
-                </div>
+                </motion.div>
               );
             })()}
 
@@ -325,7 +342,7 @@ export const BranchesPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              branchesList.map((branch) => {
+              branchesList.map((branch, idx) => {
                 const isManagingThis = activeRid === branch.id;
                 const branchLabel = branch.branchName || branch.n;
                 const branchCats = allCats.filter((c) => c.rid === branch.id).length;
@@ -333,8 +350,12 @@ export const BranchesPage: React.FC = () => {
                 const branchUrl = getBranchUrl(branch);
 
                 return (
-                  <div
+                  <motion.div
                     key={branch.id}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.08 }}
+                    transition={{ duration: 0.38, delay: prefersReducedMotion ? 0 : Math.min(idx * 0.05, 0.2), ease: [0.16, 1, 0.3, 1] }}
                     style={{
                       ...surfaceCardStyle,
                       borderRadius: '18px',
@@ -417,7 +438,7 @@ export const BranchesPage: React.FC = () => {
                         <Trash2 size={14} />
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })
             )}

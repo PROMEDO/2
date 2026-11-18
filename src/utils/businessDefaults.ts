@@ -94,7 +94,8 @@ export function ensureRestaurantDefaults<T extends Partial<Restaurant>>(r: T): T
   const existingCovers = Array.isArray(r.coverImages)
     ? r.coverImages.filter((u) => typeof u === 'string' && u.trim().length > 0)
     : [];
-  const resolvedMode: 'dark' | 'light' = r.themeMode === 'dark' ? 'dark' : 'light';
+  const resolvedMode: 'dark' | 'light' | 'auto' =
+    r.themeMode === 'dark' ? 'dark' : r.themeMode === 'auto' ? 'auto' : 'light';
   const resolvedPreset = r.themePreset || (resolvedMode === 'dark' ? 'emerald-dark' : 'clean-light');
 
   return {
