@@ -175,36 +175,37 @@ export const OrdersPage: React.FC = () => {
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
       <div className="mp-orders-toolbar">
-        <div className="mp-orders-filters">
+        <div className="mp-orders-tabs" role="tablist" aria-label="تصفية الطلبات">
           <button
             type="button"
-            className={orderFilter === 'all' ? 'btn p s' : 'btn s'}
+            role="tab"
+            aria-selected={orderFilter === 'all'}
+            className={`mp-orders-tab ${orderFilter === 'all' ? 'is-active' : ''}`}
             onClick={() => setOrderFilter('all')}
           >
-            الكل ({allOrders.length})
+            <span>الكل</span>
+            <span className="mp-orders-tab-count tabular-nums">({allOrders.length})</span>
           </button>
           <button
             type="button"
-            className={orderFilter === 'new' ? 'btn p s' : 'btn s'}
+            role="tab"
+            aria-selected={orderFilter === 'new'}
+            className={`mp-orders-tab ${orderFilter === 'new' ? 'is-active' : ''}`}
             onClick={() => setOrderFilter('new')}
           >
-            جديد ({newOrdersCount})
+            <span>جديد</span>
+            <span className="mp-orders-tab-count tabular-nums">({newOrdersCount})</span>
           </button>
           <button
             type="button"
-            className={orderFilter === 'completed' ? 'btn p s' : 'btn s'}
+            role="tab"
+            aria-selected={orderFilter === 'completed'}
+            className={`mp-orders-tab ${orderFilter === 'completed' ? 'is-active' : ''}`}
             onClick={() => setOrderFilter('completed')}
           >
-            مكتمل ({completedOrdersCount})
+            <span>مكتمل</span>
+            <span className="mp-orders-tab-count tabular-nums">({completedOrdersCount})</span>
           </button>
-        </div>
-
-        <div className="mp-items-count-box" aria-label={`عدد الطلبات ${allOrders.length}`}>
-          <span className="mp-items-count-label">عدد الطلبات</span>
-          <span className="mp-items-count-divider" aria-hidden="true" />
-          <span dir="ltr" className="mp-items-count-num tabular-nums">
-            {allOrders.length}
-          </span>
         </div>
       </div>
 
@@ -228,56 +229,71 @@ export const OrdersPage: React.FC = () => {
             const statusInfo = getOrderStatusInfo(order);
             const displayOrderNum = getOrderDisplayNumber(order);
             const dateTimeLabel = formatOrderDayAndTime(order);
+            const totalAmount = formatNumber(order.tot || order.total || 0);
 
             return (
               <div key={order.id} className="mp-order-row">
-                <div className="mp-order-main">
-                  <span className="mp-order-num tabular-nums">
-                    {displayOrderNum}
-                  </span>
+                <div className="mp-order-top-line">
+                  <div className="mp-order-meta-group">
+                    <span className="mp-order-num tabular-nums">
+                      {displayOrderNum}
+                    </span>
 
-                  <span className="mp-order-type-chip">
-                    <TypeIcon size={13} style={{ color: 'var(--brand-ink, #34D399)', flexShrink: 0 }} />
-                    <span>{typeInfo.label}</span>
-                  </span>
+                    <span className="mp-order-type-chip">
+                      <TypeIcon size={12} style={{ color: 'var(--brand-ink, #34D399)', flexShrink: 0 }} />
+                      <span>{typeInfo.label}</span>
+                    </span>
 
-                  <span
-                    className="mp-order-status-dot"
-                    style={{ background: statusInfo.bg }}
-                  >
-                    {statusInfo.text}
-                  </span>
+                    <span
+                      className="mp-order-status-dot"
+                      style={{ background: statusInfo.bg }}
+                    >
+                      {statusInfo.text}
+                    </span>
+                  </div>
 
-                  <span className="mp-order-datetime tabular-nums">
-                    <CalendarClock size={13} style={{ flexShrink: 0, opacity: 0.8 }} />
-                    <span>{dateTimeLabel}</span>
-                  </span>
+                  <div className="mp-order-end-group">
+                    <span className="mp-order-price tabular-nums">
+                      {totalAmount} {currency}
+                    </span>
+
+                    {ordPhone && (
+                      <a
+                        href={waLink(
+                          ordPhone,
+                          `مرحباً ${ordName}، بخصوص طلبك ${displayOrderNum} من ${rest.n}:`
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mp-order-icon-btn is-wa"
+                        title="مراسلة الزبون عبر واتساب"
+                        aria-label={`مراسلة الزبون عبر واتساب للطلب ${displayOrderNum}`}
+                      >
+                        <MessageCircle size={15} />
+                      </a>
+                    )}
+
+                    <button
+                      type="button"
+                      className="mp-order-icon-btn"
+                      onClick={() => setSelectedOrderId(order.id)}
+                      title="تفاصيل الطلب"
+                      aria-label={`تفاصيل الطلب ${displayOrderNum}`}
+                    >
+                      <Eye size={15} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mp-order-actions">
-                  {ordPhone && (
-                    <a
-                      href={waLink(
-                        ordPhone,
-                        `مرحباً ${ordName}، بخصوص طلبك ${displayOrderNum} من ${rest.n}:`
-                      )}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mp-order-wa-btn"
-                    >
-                      <MessageCircle size={15} />
-                      <span>واتساب</span>
-                    </a>
-                  )}
+                <div className="mp-order-bottom-line">
+                  <span className="mp-order-datetime tabular-nums">
+                    <CalendarClock size={12} style={{ flexShrink: 0, opacity: 0.8 }} />
+                    <span>{dateTimeLabel}</span>
+                  </span>
 
-                  <button
-                    type="button"
-                    className="mp-order-details-btn"
-                    onClick={() => setSelectedOrderId(order.id)}
-                  >
-                    <Eye size={15} />
-                    <span>التفاصيل</span>
-                  </button>
+                  <span className="mp-order-customer-mini">
+                    {ordName ? `${ordName} • ${statusInfo.text}` : statusInfo.text}
+                  </span>
                 </div>
               </div>
             );
