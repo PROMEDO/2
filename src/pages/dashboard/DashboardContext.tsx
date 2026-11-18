@@ -120,28 +120,28 @@ export const LAYOUT_DEFINITIONS: Array<{
   icon: string;
 }> = [
   {
+    id: 'grid4',
+    title: 'شبكة من 4 مربعات',
+    desc: 'عرض المنتجات 4 بطاقات متساوية في كل صف بصور مستطيلة أفقية',
+    icon: '⊞',
+  },
+  {
     id: 'grid3',
     title: 'شبكة من 3 مربعات',
-    desc: 'عرض المنتجات 3 مربعات متجاورة في كل صف وتحتها 3 مربعات بشكل مرتب',
+    desc: 'عرض المنتجات 3 بطاقات متساوية في كل صف بصور مستطيلة أفقية',
     icon: '▦',
   },
   {
     id: 'grid',
     title: 'شبكة من مربعين (2×2)',
-    desc: 'عرض المنتجات مربعين في كل صف وتحتها مربعان بصور مربعة واضحة',
+    desc: 'عرض المنتجات بطاقتين متساويتين في كل صف بصور مستطيلة أفقية',
     icon: '🍱',
   },
   {
     id: 'list',
     title: 'قائمة كلاسيكية أفقية',
-    desc: 'قائمة أفقية كلاسيكية مع صورة جانبية واضحة ووصف وسعر كل صنف',
+    desc: 'بطاقات أفقية متناسقة بصورة مستطيلة جانبية والاسم والسعر وزر الإضافة',
     icon: '📑',
-  },
-  {
-    id: 'cards',
-    title: 'بطاقات عرض عريضة',
-    desc: 'بطاقة كبيرة لكل منتج بصورة عريضة ووصف واضح وزر إضافة بارز',
-    icon: '🖼️',
   },
 ];
 
@@ -897,7 +897,13 @@ function useDashboardController({
 
   // APPEARANCE STATE
   const normalizeLayoutChoice = (raw?: string): MenuLayout =>
-    raw === 'grid3' ? 'grid3' : raw === 'grid' ? 'grid' : raw === 'cards' ? 'cards' : 'list';
+    raw === 'grid4' || raw === 'cards'
+      ? 'grid4'
+      : raw === 'grid3'
+      ? 'grid3'
+      : raw === 'grid'
+      ? 'grid'
+      : 'list';
   const [selectedLayout, setSelectedLayout] = useState<MenuLayout>(() => {
     const candidate = normalizeLayoutChoice(rest.lay);
     return isLayoutAllowed(candidate) ? candidate : 'list';

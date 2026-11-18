@@ -35,8 +35,17 @@ export const AppearancePage: React.FC = () => {
 
   return (
     <div className="mp-appearance-page">
-      {/* Top Bar: Light / Dark / Auto Mode FIRST + Save Button */}
+      {/* Top Bar: Small Save Changes Button FIRST, Glassmorphic Light/Dark/Auto Mode BELOW */}
       <div className="mp-appearance-top-bar">
+        <button
+          type="button"
+          onClick={handleSaveSettings}
+          className="mp-appearance-save-btn"
+        >
+          <Save size={14} />
+          <span>حفظ التغييرات</span>
+        </button>
+
         {resolvedPlan.perms.lightDarkMode && (
           <div className="mp-appearance-mode-tabs" role="group" aria-label="وضع المظهر">
             <button
@@ -62,16 +71,6 @@ export const AppearancePage: React.FC = () => {
             </button>
           </div>
         )}
-
-        <button
-          type="button"
-          onClick={handleSaveSettings}
-          className="btn p"
-          style={{ fontWeight: 800 }}
-        >
-          <Save size={16} />
-          <span>حفظ الألوان والمظهر</span>
-        </button>
       </div>
 
       {/* Layout Options: 4 Squares (2 top, 2 bottom) without large background card */}

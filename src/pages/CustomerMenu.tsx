@@ -763,8 +763,14 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
   const canOrderNow =
     openNow || Boolean(rest.acceptOrdersWhenClosed) || Boolean(addons.closedNotice?.enabled);
   const rawLay = rest.lay;
-  const layout: 'grid3' | 'grid' | 'list' | 'cards' =
-    rawLay === 'grid3' ? 'grid3' : rawLay === 'grid' ? 'grid' : rawLay === 'cards' ? 'cards' : 'list';
+  const layout: 'grid4' | 'grid3' | 'grid' | 'list' =
+    rawLay === 'grid4' || rawLay === 'cards'
+      ? 'grid4'
+      : rawLay === 'grid3'
+      ? 'grid3'
+      : rawLay === 'grid'
+      ? 'grid'
+      : 'list';
 
   // Active automatic menu discount (Countdown Timer discount OR Happy Hour discount)
   const activeMenuDiscount = useMemo(() => getActiveMenuDiscount(addons, nowMs), [addons, nowMs]);
@@ -2233,13 +2239,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                         const itemEval = itemEvalMap.get(it.id) || evaluateItemAvailability(it, cat, nowDate);
                         const unavailable = !itemEval.available;
                         const isFav = favoriteIds.includes(it.id);
-                        const hasSavingsBadge = Boolean(
-                          it.badges?.some(
-                            (b) =>
-                              String(b.text || '').includes('توفير') ||
-                              String(b.text || '').includes('وفر')
-                          )
-                        );
 
                         return (
                           <article
@@ -2247,7 +2246,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                             className={`pm-product-row ${unavailable ? 'unavailable' : ''}`}
                             onClick={() => openProductModal(it)}
                           >
-                            {/* Food Image on the RIGHT side (first child in RTL) */}
+                            {/* Horizontal rectangular food image */}
                             <div className="pm-product-thumb">
                               {it.img ? (
                                 <img src={it.img} alt={it.n} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
@@ -2262,261 +2261,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                     background: 'var(--pm-soft)',
                                   }}
                                 >
-                                  <Utensils size={24} />
-                                </div>
-                              )}
-                              {qty > 0 && (
-                                <span className="pm-qty-badge tabular-nums">{qty} ×</span>
-                              )}
-                                {addons.savedFavorites?.enabled && (
-                                <button
-                                  type="button"
-                                  aria-label="مفضلة"
-                                  onClick={(e) => toggleFavorite(it.id, e)}
-                                  style={{
-                                    position: 'absolute',
-                                    bottom: '6px',
-                                    insetInlineEnd: '6px',
-                                    width: '25px',
-                                    height: '25px',
-                                    borderRadius: '50%',
-                                    border: '1px solid var(--pm-line)',
-                                    background: 'color-mix(in srgb, var(--pm-card) 86%, transparent)',
-                                    display: 'grid',
-                                    placeItems: 'center',
-                                    cursor: 'pointer',
-                                  }}
-                                >
-                                  <Heart size={13} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
-                                </button>
-                              )}
-                            </div>
-
-                            {/* Dish Details & Price */}
-                            <div
-                              style={{
-                                flex: 1,
-                                minWidth: 0,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '5px',
-                              }}
-                            >
-                              <div>
-                                <div
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '5px',
-                                    flexWrap: 'wrap',
-                                    marginBottom: '2px',
-                                  }}
-                                >
-                                  <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: 'var(--pm-ink)', lineHeight: 1.35 }}>
-                                    {it.n}
-                                  </h3>
-                                  {it.badges?.map((b, bi) => renderBadge(b, bi))}
-                                  {unavailable ? (
-                                    itemEval.outOfSchedule ? (
-                                      <span className="pm-badge gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                        <Clock size={11} />
-                                        <span>متوفر {itemEval.badgeText}</span>
-                                      </span>
-                                    ) : (
-                                      <span className="pm-badge red">غير متوفر</span>
-                                    )
-                                  ) : (
-                                    it.availabilitySchedule?.enabled &&
-                                    itemEval.badgeText && (
-                                      <span
-                                        style={{
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          gap: '3px',
-                                          fontSize: '10.5px',
-                                          fontWeight: 700,
-                                          color: 'var(--pm-muted)',
-                                        }}
-                                      >
-                                        <Clock size={10} />
-                                        <span>{itemEval.badgeText}</span>
-                                      </span>
-                                    )
-                                  )}
-                                </div>
-
-                                {it.d && (
-                                  <p
-                                    style={{
-                                      margin: '0 0 4px',
-                                      fontSize: '11.5px',
-                                      color: 'var(--pm-muted)',
-                                      lineHeight: 1.45,
-                                      display: '-webkit-box',
-                                      WebkitLineClamp: 2,
-                                      WebkitBoxOrient: 'vertical',
-                                      overflow: 'hidden',
-                                    }}
-                                  >
-                                    {it.d}
-                                  </p>
-                                )}
-                              </div>
-
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  gap: '6px',
-                                  flexWrap: 'wrap',
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                                  <span
-                                    className="tabular-nums"
-                                    style={{
-                                      color: accentText,
-                                      fontWeight: 900,
-                                      fontSize: '14px',
-                                      letterSpacing: '0.01em',
-                                    }}
-                                  >
-                                    {priceInfo.main}
-                                  </span>
-                                  {priceInfo.rawBefore > 0 && (
-                                    <>
-                                      <span
-                                        className="tabular-nums"
-                                        style={{
-                                          color: 'var(--pm-muted)',
-                                          textDecoration: 'line-through',
-                                          fontSize: '11.5px',
-                                          fontWeight: 600,
-                                        }}
-                                      >
-                                        {formatNumber(priceInfo.rawBefore)} {currency}
-                                      </span>
-                                      {!hasSavingsBadge && priceInfo.savings > 0 && (
-                                        <span className="pm-badge green tabular-nums">
-                                          وفر {formatNumber(priceInfo.savings)} {currency}
-                                        </span>
-                                      )}
-                                    </>
-                                  )}
-                                  {((it.sizes && it.sizes.length > 0) ||
-                                    (it.choices && it.choices.length > 0) ||
-                                    (it.extras && it.extras.length > 0)) && (
-                                    <span
-                                      style={{
-                                        fontSize: '10.5px',
-                                        color: accentText,
-                                        background: 'color-mix(in srgb, var(--pm-brand) 12%, transparent)',
-                                        border: '1px solid color-mix(in srgb, var(--pm-brand) 28%, transparent)',
-                                        padding: '1px 7px',
-                                        borderRadius: '8px',
-                                        fontWeight: 700,
-                                      }}
-                                    >
-                                      خيارات
-                                    </span>
-                                  )}
-                                </div>
-
-                                <button
-                                  type="button"
-                                  disabled={unavailable}
-                                  aria-label={`إضافة ${it.n} للسلة`}
-                                  onClick={(e) => quickAddOrOpenModal(it, e)}
-                                  style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '10px',
-                                    border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
-                                    background: brandColor,
-                                    color: brandInk,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 3px 10px rgba(0, 0, 0, 0.22)',
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  <Plus size={16} strokeWidth={2.6} />
-                                </button>
-                              </div>
-                            </div>
-                          </article>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* 2 & 3) SQUARE GRID LAYOUTS ONLY: 3 SQUARES (grid3) OR 2 SQUARES (grid) */}
-                  {(layout === 'grid3' || layout === 'grid') && (
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns:
-                          layout === 'grid3'
-                            ? 'repeat(3, minmax(0, 1fr))'
-                            : 'repeat(2, minmax(0, 1fr))',
-                        gap: layout === 'grid3' ? '7px' : '10px',
-                        alignItems: 'start',
-                      }}
-                    >
-                      {catItems.map((it) => {
-                        const qty = getItemCartQty(it.id);
-                        const priceInfo = getPriceDisplay(it, currency, activeMenuDiscount, resolvedPlan.perms.itemDiscounts);
-                        const itemEval = itemEvalMap.get(it.id) || evaluateItemAvailability(it, cat, nowDate);
-                        const unavailable = !itemEval.available;
-                        const isThreeCol = layout === 'grid3';
-                        const isFav = favoriteIds.includes(it.id);
-
-                        return (
-                          <article
-                            key={it.id}
-                            onClick={() => openProductModal(it)}
-                            style={{
-                              background: 'var(--pm-card)',
-                              border: '1px solid var(--pm-line)',
-                              borderRadius: isThreeCol ? '12px' : '15px',
-                              overflow: 'hidden',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              opacity: unavailable ? 0.52 : 1,
-                              boxShadow: isLightMenu ? '0 3px 14px rgba(15, 23, 42, 0.07)' : '0 5px 16px rgba(0, 0, 0, 0.36)',
-                            }}
-                          >
-                            <div
-                              style={{
-                                position: 'relative',
-                                aspectRatio: isThreeCol ? '4 / 3.4' : '4 / 3.2',
-                                background: 'var(--pm-soft)',
-                              }}
-                            >
-                              {it.img ? (
-                                <img
-                                  src={it.img}
-                                  alt={it.n}
-                                  loading="lazy"
-                                  decoding="async"
-                                  referrerPolicy="no-referrer"
-                                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                                />
-                              ) : (
-                                <div
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    display: 'grid',
-                                    placeItems: 'center',
-                                    color: 'var(--pm-muted)',
-                                  }}
-                                >
-                                  <Utensils size={isThreeCol ? 22 : 28} />
+                                  <Utensils size={22} />
                                 </div>
                               )}
                               {qty > 0 && (
@@ -2531,8 +2276,8 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                     position: 'absolute',
                                     top: '5px',
                                     insetInlineEnd: '5px',
-                                    width: '24px',
-                                    height: '24px',
+                                    width: '22px',
+                                    height: '22px',
                                     borderRadius: '50%',
                                     border: '1px solid var(--pm-line)',
                                     background: 'color-mix(in srgb, var(--pm-card) 86%, transparent)',
@@ -2541,67 +2286,45 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                     cursor: 'pointer',
                                   }}
                                 >
-                                  <Heart size={12} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
+                                  <Heart size={11} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
                                 </button>
                               )}
                             </div>
 
+                            {/* Dish Name, Price & Plus Button Only (No description) */}
                             <div
                               style={{
-                                padding: isThreeCol ? '7px' : '9px 10px',
+                                flex: 1,
+                                minWidth: 0,
                                 display: 'flex',
-                                flexDirection: 'column',
-                                gap: isThreeCol ? '4px' : '5px',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: '10px',
                               }}
                             >
-                              <b
-                                style={{
-                                  fontSize: isThreeCol ? '11.5px' : '13px',
-                                  lineHeight: 1.35,
-                                  color: 'var(--pm-ink)',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                {it.n}
-                              </b>
-
-                              {unavailable && itemEval.outOfSchedule && (
-                                <div
+                              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <h3
                                   style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '3px',
-                                    fontSize: isThreeCol ? '9.5px' : '10.5px',
-                                    fontWeight: 700,
-                                    color: '#f59e0b',
+                                    margin: 0,
+                                    fontSize: '14px',
+                                    fontWeight: 800,
+                                    color: 'var(--pm-ink)',
+                                    lineHeight: 1.35,
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
                                   }}
                                 >
-                                  <Clock size={10} style={{ flexShrink: 0 }} />
-                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {itemEval.badgeText}
-                                  </span>
-                                </div>
-                              )}
-
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  gap: '4px',
-                                }}
-                              >
-                                <div style={{ minWidth: 0 }}>
+                                  {it.n}
+                                </h3>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                                   <span
                                     className="tabular-nums"
                                     style={{
                                       color: accentText,
                                       fontWeight: 900,
-                                      fontSize: isThreeCol ? '11px' : '13px',
-                                      display: 'block',
+                                      fontSize: '14px',
                                     }}
                                   >
                                     {priceInfo.main}
@@ -2610,49 +2333,47 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                     <span
                                       className="tabular-nums"
                                       style={{
-                                        fontSize: isThreeCol ? '9.5px' : '10.5px',
                                         color: 'var(--pm-muted)',
                                         textDecoration: 'line-through',
-                                        display: 'block',
+                                        fontSize: '11.5px',
+                                        fontWeight: 600,
                                       }}
                                     >
                                       {formatNumber(priceInfo.rawBefore)} {currency}
                                     </span>
                                   )}
                                 </div>
-                                <button
-                                  type="button"
-                                  disabled={unavailable}
-                                  aria-label={`إضافة ${it.n} للسلة`}
-                                  onClick={(e) => quickAddOrOpenModal(it, e)}
-                                  style={{
-                                    border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
-                                    borderRadius: isThreeCol ? '8px' : '9px',
-                                    background: brandColor,
-                                    color: brandInk,
-                                    width: unavailable ? 'auto' : isThreeCol ? '26px' : '30px',
-                                    height: isThreeCol ? '26px' : '30px',
-                                    padding: unavailable ? '0 6px' : 0,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '10.5px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  {unavailable ? (
-                                    itemEval.outOfSchedule ? (
-                                      <Clock size={isThreeCol ? 12 : 14} />
-                                    ) : (
-                                      'نفد'
-                                    )
-                                  ) : (
-                                    <Plus size={isThreeCol ? 14 : 16} strokeWidth={2.6} />
-                                  )}
-                                </button>
                               </div>
+
+                              <button
+                                type="button"
+                                disabled={unavailable}
+                                aria-label={`إضافة ${it.n} للسلة`}
+                                onClick={(e) => quickAddOrOpenModal(it, e)}
+                                style={{
+                                  width: unavailable ? 'auto' : '32px',
+                                  height: '32px',
+                                  padding: unavailable ? '0 8px' : 0,
+                                  borderRadius: '10px',
+                                  border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
+                                  background: brandColor,
+                                  color: brandInk,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '11px',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.22)',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {unavailable ? (
+                                  itemEval.outOfSchedule ? <Clock size={14} /> : 'نفد'
+                                ) : (
+                                  <Plus size={16} strokeWidth={2.6} />
+                                )}
+                              </button>
                             </div>
                           </article>
                         );
@@ -2660,53 +2381,36 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                     </div>
                   )}
 
-                  {/* 4) WIDE SHOWCASE CARDS LAYOUT (cards) */}
-                  {layout === 'cards' && (
+                  {/* 2, 3 & 4) SYMMETRICAL HORIZONTAL-IMAGE GRID LAYOUTS: 4 COLS (grid4), 3 COLS (grid3), 2 COLS (grid) */}
+                  {(layout === 'grid4' || layout === 'grid3' || layout === 'grid') && (
                     <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
-                        gap: '12px',
-                        alignItems: 'stretch',
-                      }}
+                      className={`pm-menu-grid ${
+                        layout === 'grid4'
+                          ? 'pm-cols-4'
+                          : layout === 'grid3'
+                          ? 'pm-cols-3'
+                          : 'pm-cols-2'
+                      }`}
                     >
                       {catItems.map((it) => {
                         const qty = getItemCartQty(it.id);
                         const priceInfo = getPriceDisplay(it, currency, activeMenuDiscount, resolvedPlan.perms.itemDiscounts);
                         const itemEval = itemEvalMap.get(it.id) || evaluateItemAvailability(it, cat, nowDate);
                         const unavailable = !itemEval.available;
+                        const isCompact = layout === 'grid4' || layout === 'grid3';
                         const isFav = favoriteIds.includes(it.id);
-                        const hasSavingsBadge = Boolean(
-                          it.badges?.some(
-                            (b) =>
-                              String(b.text || '').includes('توفير') ||
-                              String(b.text || '').includes('وفر')
-                          )
-                        );
 
                         return (
                           <article
                             key={it.id}
                             onClick={() => openProductModal(it)}
+                            className="pm-menu-card"
                             style={{
-                              background: 'var(--pm-card)',
-                              border: '1px solid var(--pm-line)',
-                              borderRadius: '18px',
-                              overflow: 'hidden',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              opacity: unavailable ? 0.55 : 1,
-                              boxShadow: isLightMenu ? '0 4px 18px rgba(15, 23, 42, 0.07)' : '0 8px 22px rgba(0, 0, 0, 0.36)',
+                              opacity: unavailable ? 0.52 : 1,
+                              boxShadow: isLightMenu ? '0 3px 14px rgba(15, 23, 42, 0.07)' : '0 5px 16px rgba(0, 0, 0, 0.36)',
                             }}
                           >
-                            <div
-                              style={{
-                                position: 'relative',
-                                aspectRatio: '16 / 9',
-                                background: 'var(--pm-soft)',
-                              }}
-                            >
+                            <div className="pm-menu-card-media">
                               {it.img ? (
                                 <img
                                   src={it.img}
@@ -2714,7 +2418,6 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                   loading="lazy"
                                   decoding="async"
                                   referrerPolicy="no-referrer"
-                                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                 />
                               ) : (
                                 <div
@@ -2726,7 +2429,7 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                     color: 'var(--pm-muted)',
                                   }}
                                 >
-                                  <Utensils size={32} />
+                                  <Utensils size={layout === 'grid4' ? 18 : isCompact ? 22 : 28} />
                                 </div>
                               )}
                               {qty > 0 && (
@@ -2739,10 +2442,10 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                   onClick={(e) => toggleFavorite(it.id, e)}
                                   style={{
                                     position: 'absolute',
-                                    top: '8px',
-                                    insetInlineEnd: '8px',
-                                    width: '28px',
-                                    height: '28px',
+                                    top: '5px',
+                                    insetInlineEnd: '5px',
+                                    width: layout === 'grid4' ? '20px' : '24px',
+                                    height: layout === 'grid4' ? '20px' : '24px',
                                     borderRadius: '50%',
                                     border: '1px solid var(--pm-line)',
                                     background: 'color-mix(in srgb, var(--pm-card) 86%, transparent)',
@@ -2751,149 +2454,50 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
                                     cursor: 'pointer',
                                   }}
                                 >
-                                  <Heart size={14} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
+                                  <Heart size={layout === 'grid4' ? 10 : 12} color="#f87171" fill={isFav ? '#f87171' : 'none'} />
                                 </button>
                               )}
                             </div>
 
-                            <div
-                              style={{
-                                padding: '12px 14px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                flex: 1,
-                                gap: '8px',
-                              }}
-                            >
-                              <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'var(--pm-ink)', lineHeight: 1.35 }}>
-                                    {it.n}
-                                  </h3>
-                                  {it.badges?.map((b, bi) => renderBadge(b, bi))}
-                                  {unavailable ? (
-                                    itemEval.outOfSchedule ? (
-                                      <span className="pm-badge gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                        <Clock size={11} />
-                                        <span>متوفر {itemEval.badgeText}</span>
-                                      </span>
-                                    ) : (
-                                      <span className="pm-badge red">غير متوفر</span>
-                                    )
-                                  ) : (
-                                    it.availabilitySchedule?.enabled &&
-                                    itemEval.badgeText && (
-                                      <span
-                                        style={{
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          gap: '3px',
-                                          fontSize: '11px',
-                                          fontWeight: 700,
-                                          color: 'var(--pm-muted)',
-                                        }}
-                                      >
-                                        <Clock size={10} />
-                                        <span>{itemEval.badgeText}</span>
-                                      </span>
-                                    )
-                                  )}
-                                </div>
+                            <div className="pm-menu-card-body">
+                              <b className="pm-menu-card-title">{it.n}</b>
 
-                                {it.d && (
-                                  <p
-                                    style={{
-                                      margin: 0,
-                                      fontSize: '12.5px',
-                                      color: 'var(--pm-muted)',
-                                      lineHeight: 1.5,
-                                      display: '-webkit-box',
-                                      WebkitLineClamp: 2,
-                                      WebkitBoxOrient: 'vertical',
-                                      overflow: 'hidden',
-                                    }}
-                                  >
-                                    {it.d}
-                                  </p>
-                                )}
-                              </div>
-
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  gap: '8px',
-                                  paddingTop: '4px',
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                              <div className="pm-menu-card-footer">
+                                <div style={{ minWidth: 0 }}>
                                   <span
-                                    className="tabular-nums"
-                                    style={{
-                                      color: accentText,
-                                      fontWeight: 900,
-                                      fontSize: '15px',
-                                    }}
+                                    className="pm-menu-card-price tabular-nums"
+                                    style={{ color: accentText }}
                                   >
                                     {priceInfo.main}
                                   </span>
                                   {priceInfo.rawBefore > 0 && (
-                                    <>
-                                      <span
-                                        className="tabular-nums"
-                                        style={{
-                                          color: 'var(--pm-muted)',
-                                          textDecoration: 'line-through',
-                                          fontSize: '12px',
-                                          fontWeight: 600,
-                                        }}
-                                      >
-                                        {formatNumber(priceInfo.rawBefore)} {currency}
-                                      </span>
-                                      {!hasSavingsBadge && priceInfo.savings > 0 && (
-                                        <span className="pm-badge green tabular-nums">
-                                          وفر {formatNumber(priceInfo.savings)} {currency}
-                                        </span>
-                                      )}
-                                    </>
+                                    <span className="pm-menu-card-old-price tabular-nums">
+                                      {formatNumber(priceInfo.rawBefore)} {currency}
+                                    </span>
                                   )}
                                 </div>
-
                                 <button
                                   type="button"
                                   disabled={unavailable}
                                   aria-label={`إضافة ${it.n} للسلة`}
                                   onClick={(e) => quickAddOrOpenModal(it, e)}
+                                  className="pm-menu-card-add"
                                   style={{
                                     border: '1px solid color-mix(in srgb, var(--pm-brand) 45%, transparent)',
-                                    borderRadius: '11px',
                                     background: brandColor,
                                     color: brandInk,
-                                    height: '34px',
-                                    padding: '0 12px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '5px',
-                                    fontSize: '12.5px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    flexShrink: 0,
+                                    width: unavailable ? 'auto' : undefined,
+                                    padding: unavailable ? '0 6px' : 0,
                                   }}
                                 >
                                   {unavailable ? (
                                     itemEval.outOfSchedule ? (
-                                      <Clock size={14} />
+                                      <Clock size={isCompact ? 11 : 14} />
                                     ) : (
                                       'نفد'
                                     )
                                   ) : (
-                                    <>
-                                      <Plus size={15} strokeWidth={2.6} />
-                                      <span>أضف</span>
-                                    </>
+                                    <Plus size={layout === 'grid4' ? 13 : isCompact ? 14 : 16} strokeWidth={2.6} />
                                   )}
                                 </button>
                               </div>

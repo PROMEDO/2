@@ -6,10 +6,10 @@
 export type SupportedLanguage = 'ar' | 'en' | 'ku' | 'es' | 'fr' | 'ur';
 
 export type MenuLayout =
+  | 'grid4'
   | 'grid3'
   | 'grid'
   | 'list'
-  | 'cards'
   | (string & {});
 
 export type OrderStatus = 'pending' | 'preparing' | 'completed' | 'cancelled';
