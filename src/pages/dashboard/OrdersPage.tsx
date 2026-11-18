@@ -179,8 +179,12 @@ export const OrdersPage: React.FC = () => {
   } = useDashboard();
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [statusPickerOrderId, setStatusPickerOrderId] = useState<string | null>(null);
   const selectedOrder = selectedOrderId
     ? allOrders.find((o) => o.id === selectedOrderId) || null
+    : null;
+  const statusPickerOrder = statusPickerOrderId
+    ? allOrders.find((o) => o.id === statusPickerOrderId) || null
     : null;
 
   const completedOrdersCount = allOrders.filter(
@@ -277,32 +281,21 @@ export const OrdersPage: React.FC = () => {
                       {totalAmount} {currency}
                     </span>
 
-                    <div
-                      className="mp-order-status-select-wrap"
+                    <button
+                      type="button"
+                      className="mp-order-status-btn"
+                      onClick={() => setStatusPickerOrderId(order.id)}
+                      aria-label={`تغيير حالة الطلب ${displayOrderNum}`}
+                      title="تغيير حالة الطلب"
                       style={{
-                        borderColor: `color-mix(in srgb, ${statusInfo.bg} 45%, transparent)`,
-                        background: `color-mix(in srgb, ${statusInfo.bg} 14%, var(--bg))`,
-                        color: statusInfo.bg,
+                        background: statusInfo.bg,
+                        borderColor: statusInfo.bg,
+                        color: '#ffffff',
                       }}
                     >
-                      <span
-                        className="mp-order-status-circle"
-                        style={{ background: statusInfo.bg }}
-                        aria-hidden="true"
-                      />
-                      <select
-                        aria-label={`تغيير حالة الطلب ${displayOrderNum}`}
-                        value={statusInfo.value}
-                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
-                      >
-                        {ORDER_STATUS_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.text}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown size={12} className="mp-order-status-chevron" aria-hidden="true" />
-                    </div>
+                      <span>{statusInfo.text}</span>
+                      <ChevronDown size={11} style={{ flexShrink: 0, opacity: 0.9 }} aria-hidden="true" />
+                    </button>
 
                     {ordPhone && (
                       <a
@@ -766,6 +759,95 @@ export const OrdersPage: React.FC = () => {
         return typeof document !== 'undefined'
           ? createPortal(modalContent, document.body)
           : modalContent;
+      })()}
+
+      {statusPickerOrder && (() => {
+        const currentStatus = getOrderStatusInfo(statusPickerOrder);
+        const displayNum = getOrderDisplayNumber(statusPickerOrder);
+        const pickerModal = (
+          <div
+            className="mp-order-modal-overlay"
+            dir="rtl"
+            onClick={() => setStatusPickerOrderId(null)}
+          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label={`تغيير حالة الطلب ${displayNum}`}
+              className="mp-status-picker-card"
+              onClick={(e) => e.stopPropagation()}
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              style={surfaceCardStyle}
+            >
+              <div className="mp-status-picker-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                  <h4 className="mp-status-picker-title tabular-nums">
+                    حالة الطلب {displayNum}
+                  </h4>
+                  <span
+                    className="mp-order-status-dot"
+                    style={{ background: currentStatus.bg }}
+                  >
+                    {currentStatus.text}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStatusPickerOrderId(null)}
+                  aria-label="إغلاق"
+                  className="mp-status-picker-close"
+                >
+                  <X size={17} />
+                </button>
+              </div>
+
+              <div className="mp-status-picker-list">
+                {ORDER_STATUS_OPTIONS.map((opt) => {
+                  const isActive = currentStatus.value === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        handleUpdateOrderStatus(statusPickerOrder.id, opt.value);
+                        setStatusPickerOrderId(null);
+                      }}
+                      className={`mp-status-picker-option ${isActive ? 'is-active' : ''}`}
+                      style={
+                        isActive
+                          ? {
+                              background: opt.bg,
+                              borderColor: opt.bg,
+                              color: '#ffffff',
+                            }
+                          : {
+                              borderColor: `color-mix(in srgb, ${opt.bg} 34%, var(--line))`,
+                              background: `color-mix(in srgb, ${opt.bg} 9%, var(--bg))`,
+                            }
+                      }
+                    >
+                      <span className="mp-status-picker-opt-main">
+                        <span
+                          className="mp-order-status-circle"
+                          style={{ background: isActive ? '#ffffff' : opt.bg }}
+                          aria-hidden="true"
+                        />
+                        <span>{opt.text}</span>
+                      </span>
+                      {isActive && <Check size={14} strokeWidth={2.75} aria-hidden="true" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
+        );
+
+        return typeof document !== 'undefined'
+          ? createPortal(pickerModal, document.body)
+          : pickerModal;
       })()}
     </div>
   );
