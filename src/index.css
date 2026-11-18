@@ -7937,6 +7937,8 @@ html[data-theme="dark"] .mp-items-count-box {
   display: flex;
   flex-direction: column;
   gap: 80px;
+  padding-top: clamp(110px, 22vh, 210px);
+  padding-top: clamp(110px, 22dvh, 210px);
   padding-bottom: 32px;
 }
 
