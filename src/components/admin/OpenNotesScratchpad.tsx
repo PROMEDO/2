@@ -134,7 +134,7 @@ export const OpenNotesScratchpad: React.FC<OpenNotesScratchpadProps> = ({
       lastPersistedRef.current = textToSave;
       setSaveState('saved');
       if (manualToast) {
-        showToast('تم حفظ الملاحظات ✓');
+        showToast('تم تطبيق التغيرات');
       }
     },
     [buildNotePayload, showToast]

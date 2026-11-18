@@ -141,7 +141,7 @@ export const TelegramSettingsCard: React.FC<TelegramSettingsCardProps> = ({
         orderFooterText,
       });
       if (res.config) hydrateForm(res.config);
-      showToast('تم حفظ إعدادات بوت الطلبات في تيليجرام وتطبيقها فوراً ✓');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'تعذر حفظ إعدادات تيليجرام';
       setErrorMsg(msg);

@@ -246,7 +246,7 @@ export const SettingsPage: React.FC = () => {
                 currentLang={lang}
                 onChange={(newLang) => {
                   setLang(newLang);
-                  showToast('تم تغيير لغة النظام بنجاح ✓');
+                  showToast('تم تطبيق التغيرات');
                 }}
                 buttonBg="var(--bg)"
                 buttonBorder="1px solid var(--line)"

@@ -163,7 +163,7 @@ export const MyAccountSection: React.FC<MyAccountSectionProps> = ({
       setConfirmPassword('');
       await syncFromServer();
       onRefresh();
-      showToast('تم حفظ وتحديث معلومات حسابك بنجاح ✓');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : 'تعذر حفظ بيانات الحساب');
     } finally {

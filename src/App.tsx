@@ -4,6 +4,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Check } from 'lucide-react';
 import { HomeSettings, PricingPlan, Restaurant, Session, SiteSettings, ThemeSettings } from './types';
 import {
   applyPlatformTypography,
@@ -60,14 +61,32 @@ export default function App() {
   const [subdomainRestaurantId, setSubdomainRestaurantId] = useState<string | null>(() => {
     return window.__MENUPLUS_SUBDOMAIN__?.restaurantId || null;
   });
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastState, setToastState] = useState<{ id: number; text: string; isError: boolean } | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
   const [, setDataVersion] = useState<number>(0);
 
   const showToast = useCallback((msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage((cur) => (cur === msg ? null : cur));
-    }, 2800);
+    const cleanText = String(msg || '').replace(/\s*[✓✔️]+\s*$/g, '').trim();
+    if (!cleanText) return;
+    const isError = /🔒|تعذر|يرجى|ليست|ليس لديك|وصلت|يتجاوز|مستخدم بالفعل|يجب إكمال|توجد مشكلة|غير متاح/i.test(cleanText);
+    if (toastTimerRef.current !== null) {
+      window.clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = null;
+    }
+    const toastId = Date.now();
+    setToastState({ id: toastId, text: cleanText, isError });
+    toastTimerRef.current = window.setTimeout(() => {
+      toastTimerRef.current = null;
+      setToastState((cur) => (cur && cur.id === toastId ? null : cur));
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current !== null) {
+        window.clearTimeout(toastTimerRef.current);
+      }
+    };
   }, []);
 
   const refreshData = useCallback(() => {
@@ -365,7 +384,16 @@ export default function App() {
   return (
     <div className="min-h-screen">
       {/* Toast popup */}
-      {toastMessage && <div className="toast">{toastMessage}</div>}
+      {toastState && (
+        <div key={toastState.id} className="toast" dir="rtl" role="status" aria-live="polite">
+          <span className="toast-text">{toastState.text}</span>
+          {!toastState.isError && (
+            <span className="toast-check" aria-hidden="true">
+              <Check size={10} strokeWidth={3} />
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Subdomain storefront takes precedence on <storename>.menuplus.io/ */}
       {subdomainRestaurantId && route.page === 'home' && (

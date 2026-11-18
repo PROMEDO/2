@@ -148,14 +148,7 @@ export const HomePageEditorSection: React.FC<HomePageEditorSectionProps> = ({
     const adminMode = site.adminThemeMode || 'light';
     applyTheme(buildThemeForMode(adminMode, nextPublicTheme));
     onRefresh();
-    const resolvedNow = resolveEffectiveThemeMode(nextMode) === 'dark' ? 'داكن' : 'فاتح';
-    showToast(
-      nextMode === 'auto'
-        ? `تم ضبط مظهر الموقع العام حسب جهاز الزائر 📱 (جهازك حالياً: ${resolvedNow})`
-        : nextMode === 'dark'
-          ? 'تم تعيين الوضع الداكن للصفحة الرئيسية للموقع 🌙'
-          : 'تم تعيين الوضع الفاتح للصفحة الرئيسية للموقع ☀️'
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSaveAll = async () => {
@@ -313,7 +306,7 @@ export const HomePageEditorSection: React.FC<HomePageEditorSectionProps> = ({
         'system'
       );
       onRefresh();
-      showToast('تم حفظ جميع تعديلات الصفحة الرئيسية والباقات بنجاح ✓');
+      showToast('تم تطبيق التغيرات');
     } finally {
       setSaving(false);
     }

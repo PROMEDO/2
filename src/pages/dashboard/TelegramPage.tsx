@@ -139,7 +139,7 @@ export const TelegramPage: React.FC = () => {
           setAwaitingShare(false);
           setBotUrl('');
           setInfoMsg('تم ربط رقمك مع بوت تيليجرام بنجاح! ستصلك طلبات متجرك فوراً ✓');
-          showToast('تم ربط تيليجرام لاستقبال الطلبات بنجاح ✓');
+          showToast('تم تطبيق التغيرات');
           await syncFromServer();
           onRefresh();
         }
@@ -186,7 +186,7 @@ export const TelegramPage: React.FC = () => {
       if (res.linked) {
         setAwaitingShare(false);
         setInfoMsg(res.message || 'تم ربط رقمك بنجاح ✓');
-        showToast('تم ربط تيليجرام لاستقبال الطلبات بنجاح ✓');
+        showToast('تم تطبيق التغيرات');
         await syncFromServer();
         onRefresh();
         await loadStatus(true);
@@ -209,7 +209,7 @@ export const TelegramPage: React.FC = () => {
       await syncFromServer();
       onRefresh();
       await loadStatus(true);
-      showToast(nextEnabled ? 'تم تفعيل استقبال الطلبات عبر تيليجرام' : 'تم إيقاف إشعارات تيليجرام مؤقتاً');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'تعذر تحديث الإعداد.');
     } finally {
@@ -249,7 +249,7 @@ export const TelegramPage: React.FC = () => {
       setStatus((prev) =>
         prev ? { ...prev, linked: false, telegramUsername: '', telegramSendReady: false } : prev
       );
-      showToast('تم فك ربط تيليجرام — يمكنك إدخال رقم جديد الآن');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'تعذر فك الربط.');
     } finally {
@@ -304,7 +304,7 @@ export const TelegramPage: React.FC = () => {
         // ignore storage error
       }
       setShowCustomProxyForm(false);
-      showToast('تمت العودة إلى رابط البروكسي الافتراضي ✓');
+      showToast('تم تطبيق التغيرات');
       return;
     }
     const valid = sanitizeTelegramProxyLink(trimmed);
@@ -320,7 +320,7 @@ export const TelegramPage: React.FC = () => {
       // ignore storage error
     }
     setShowCustomProxyForm(false);
-    showToast('تم حفظ رابط البروكسي المخصص بنجاح ✓');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleResetDefaultProxy = () => {
@@ -332,7 +332,7 @@ export const TelegramPage: React.FC = () => {
     } catch {
       // ignore storage error
     }
-    showToast('تمت استعادة رابط البروكسي الافتراضي ✓');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleCopyProxyLink = () => {

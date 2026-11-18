@@ -350,7 +350,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
       'system'
     );
     onRefresh();
-    showToast('تم حفظ إعدادات المنصة وميزات الباقات بنجاح ✓');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSavePlanFeaturesOnly = async () => {
@@ -394,7 +394,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
       'system'
     );
     onRefresh();
-    showToast('تم حفظ تعديلات وترتيب ميزات الباقات ✓');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSelectAdminThemeMode = async (nextMode: 'light' | 'dark' | 'auto') => {
@@ -411,13 +411,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
     applyTheme(buildThemeForMode(nextMode, editTheme));
     await putItemAndSync('settings/site', nextSite);
     onRefresh();
-    showToast(
-      nextMode === 'dark'
-        ? 'تم تفعيل الوضع الداكن للوحة الأدمن 🌙'
-        : nextMode === 'auto'
-        ? 'تم تفعيل مظهر لوحة الأدمن حسب الجهاز تلقائياً 📱'
-        : 'تم تفعيل الوضع الفاتح للوحة الأدمن ☀️'
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSelectGlobalDashboardThemeMode = async (nextMode: 'light' | 'dark' | 'auto') => {
@@ -439,13 +433,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
       'system'
     );
     onRefresh();
-    showToast(
-      nextMode === 'auto'
-        ? 'تم تفعيل ثيم لوحة التحكم حسب جهاز الزبون تلقائياً ✓'
-        : nextMode === 'dark'
-        ? 'تم تعيين الوضع الداكن الافتراضي للوحة تحكم الزبائن 🌙'
-        : 'تم تعيين الوضع الفاتح الافتراضي للوحة تحكم الزبائن ☀️'
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleApplyDashboardThemeToAllStores = async (nextMode: 'light' | 'dark' | 'auto') => {
@@ -472,11 +460,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
     setEditSite(nextSite);
     await putItemAndSync('settings/site', nextSite);
     onRefresh();
-    showToast(
-      updatedCount > 0
-        ? `تم تعميم المظهر على ${updatedCount} متجر بنجاح ✓`
-        : 'جميع المتاجر مضبوطة بالفعل على هذا المظهر ✓'
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const snapWeightToCatalog = (desired: number, available: number[]): number => {
@@ -539,7 +523,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
     applyTheme(buildThemeForMode(activeAdminMode, nextTheme));
     await putItemAndSync('settings/theme', nextTheme);
     onRefresh();
-    if (toastMsg) showToast(toastMsg);
+    if (toastMsg) showToast('تم تطبيق التغيرات');
   };
 
   const customAdminLabel = (id: string, fallback: string) => {

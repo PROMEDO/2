@@ -191,7 +191,7 @@ export const PlanFeaturesOrderEditor: React.FC<PlanFeaturesOrderEditorProps> = (
   const handleApplyOrderToAll = () => {
     const nextPlans = syncPlanComparisonOrderToAll(plans, plan);
     onChangePlans(nextPlans);
-    showToast?.('تم تطبيق نفس ترتيب الميزات على جميع الباقات ✓');
+    showToast?.('تم تطبيق التغيرات');
   };
 
   const handleResetPlanOrder = () => {
@@ -203,7 +203,7 @@ export const PlanFeaturesOrderEditor: React.FC<PlanFeaturesOrderEditorProps> = (
       return cleaned;
     });
     onChangePlans(nextPlans);
-    showToast?.(`تمت استعادة الترتيب والنصوص الافتراضية لباقة «${plan.n}»`);
+    showToast?.('تم تطبيق التغيرات');
   };
 
   return (

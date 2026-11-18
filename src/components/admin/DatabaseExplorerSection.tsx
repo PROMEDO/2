@@ -238,7 +238,7 @@ export const DatabaseExplorerSection: React.FC<DatabaseExplorerSectionProps> = (
       setCleanupResult(res);
       await loadOverview(true);
       void syncFromServer().then(() => onRefresh());
-      showToast('تم فحص وتنظيف قاعدة البيانات بنجاح ✓');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'تعذر تنفيذ صيانة التنظيف');
     } finally {

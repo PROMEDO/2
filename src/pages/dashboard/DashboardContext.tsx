@@ -602,11 +602,7 @@ function useDashboardController({
   const switchActiveBranch = (targetRid: string) => {
     setActiveRid(targetRid);
     setIsItemEditorOpen(false);
-    const targetName =
-      targetRid === mainRid
-        ? `${mainRest.n} (الفرع الرئيسي)`
-        : branchesList.find((b) => b.id === targetRid)?.branchName || 'الفرع';
-    showToast(`تم التبديل لإدارة: ${targetName} ✓`);
+    showToast('تم تطبيق التغيرات');
   };
 
   const cloneCatsAndItemsFromMain = (targetBranchRid: string) => {
@@ -706,7 +702,7 @@ function useDashboardController({
     }
     setActiveRid(newBranchId);
     onRefresh();
-    showToast(`تم إنشاء "${cleanName}" وتفعيله بنجاح ✓`);
+    showToast('تم تطبيق التغيرات');
     return true;
   };
 
@@ -1393,9 +1389,7 @@ function useDashboardController({
     }
     if (added.length > 0) {
       appendToMediaLibrary(added);
-      showToast(
-        added.length === 1 ? 'تم رفع الصورة إلى مكتبة الصور ✓' : `تم رفع ${added.length} صور إلى مكتبة الصور ✓`
-      );
+      showToast('تم تطبيق التغيرات');
     } else {
       showToast('تعذر قراءة الصورة، جرب صورة أخرى');
     }
@@ -1413,13 +1407,13 @@ function useDashboardController({
       mediaLibrary: nextList,
     });
     onRefresh();
-    showToast('تم حذف الصورة من مكتبة الصور');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleDeviceImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     onResult: (dataUrl: string) => void,
-    successLabel = 'تم رفع الصورة بنجاح ✓',
+    _successLabel = 'تم تطبيق التغيرات',
     variant: 'logo' | 'banner' | 'item' = 'item'
   ) => {
     const file = e.target.files?.[0];
@@ -1436,7 +1430,7 @@ function useDashboardController({
         },
       ]);
       onResult(compressed);
-      showToast(successLabel);
+      showToast('تم تطبيق التغيرات');
     } catch {
       showToast('تعذر قراءة الصورة، جرب صورة أخرى');
     }
@@ -1451,7 +1445,7 @@ function useDashboardController({
       }
     });
     onRefresh();
-    showToast('تم حفظ ترتيب الأقسام الجديد ✓');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleToggleCategoryVisibility = (cat: Category) => {
@@ -1462,7 +1456,7 @@ function useDashboardController({
       published: nextOn,
     });
     onRefresh();
-    showToast(nextOn ? `تم إظهار قسم "${cat.n}" في المنيو` : `تم إخفاء قسم "${cat.n}" من المنيو`);
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSaveCategorySchedule = (cat: Category, schedule: AvailabilitySchedule) => {
@@ -1471,11 +1465,7 @@ function useDashboardController({
       availabilitySchedule: sanitizeAvailabilityScheduleForSave(schedule),
     });
     onRefresh();
-    showToast(
-      schedule.enabled
-        ? `تم حفظ أوقات توفر قسم "${cat.n}" ✓`
-        : `تم ضبط قسم "${cat.n}" كمتوفر دائماً ✓`
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleToggleItemVisibility = (item: MenuItem) => {
@@ -1487,7 +1477,7 @@ function useDashboardController({
       available: nextOn,
     });
     onRefresh();
-    showToast(nextOn ? `تم تشغيل "${item.n}" وظهوره في المنيو` : `تم إطفاء "${item.n}" وإخفاؤه من المنيو`);
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleReorderItems = (nextOrderedSubsetIds: string[]) => {
@@ -1509,7 +1499,7 @@ function useDashboardController({
       }
     });
     onRefresh();
-    showToast('تم حفظ ترتيب العناصر الجديد ✓');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSaveItemSchedule = (item: MenuItem, schedule: AvailabilitySchedule) => {
@@ -1518,11 +1508,7 @@ function useDashboardController({
       availabilitySchedule: sanitizeAvailabilityScheduleForSave(schedule),
     });
     onRefresh();
-    showToast(
-      schedule.enabled
-        ? `تم حفظ أوقات توفر "${item.n}" ✓`
-        : `تم ضبط "${item.n}" كمتوفر دائماً ✓`
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const openNewCategoryModal = () => {
@@ -1782,7 +1768,7 @@ function useDashboardController({
       ...(nextSizes ? { sizes: nextSizes } : {}),
     });
     onRefresh();
-    showToast(`تم تحديث سعر "${item.n}" بنجاح ✓`);
+    showToast('تم تطبيق التغيرات');
     return true;
   };
 
@@ -1964,8 +1950,7 @@ function useDashboardController({
     }
     setSelectedLayout(layId);
     void commitAppearanceDraft({ lay: layId });
-    const def = LAYOUT_DEFINITIONS.find((l) => l.id === layId);
-    showToast(`تم تطبيق "${def?.title || layId}" وحفظه تلقائياً ✓`);
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSelectThemeMode = (mode: 'dark' | 'light' | 'auto') => {
@@ -1998,13 +1983,7 @@ function useDashboardController({
       color: resolvedColor,
       bgColor: resolvedBg,
     });
-    showToast(
-      mode === 'auto'
-        ? 'تم حفظ مظهر المنيو حسب جهاز الزبون 📱'
-        : mode === 'light'
-        ? 'تم حفظ المظهر الفاتح للمنيو ☀️'
-        : 'تم حفظ المظهر الغامق للمنيو 🌙'
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSelectDashboardThemeMode = async (mode: 'dark' | 'light' | 'auto') => {
@@ -2016,13 +1995,7 @@ function useDashboardController({
       dashboardThemeMode: mode,
     });
     onRefresh();
-    showToast(
-      mode === 'light'
-        ? 'تم تفعيل الوضع الفاتح للوحة تحكمك ☀️'
-        : mode === 'auto'
-        ? 'تم تفعيل مظهر لوحة التحكم حسب جهازك تلقائياً 📱'
-        : 'تم تفعيل الوضع الداكن للوحة تحكمك 🌙'
-    );
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSelectMenuTheme = (presetId: string) => {
@@ -2040,7 +2013,7 @@ function useDashboardController({
         color: nextBrand,
         bgColor: nextBg,
       });
-      showToast('تم تفعيل وحفظ الألوان المخصصة للمنيو ✓');
+      showToast('تم تطبيق التغيرات');
       return;
     }
 
@@ -2059,7 +2032,7 @@ function useDashboardController({
       color: chosenTheme.brand,
       bgColor: '',
     });
-    showToast(`تم تطبيق وحفظ ألوان "${chosenTheme.name}" ✓`);
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleUpdateCustomColors = (nextBrand?: string, nextBg?: string) => {
@@ -2091,8 +2064,7 @@ function useDashboardController({
   const handleSelectThemeShape = (shapeId: MenuThemeShape) => {
     setMenuThemeShape(shapeId);
     void commitAppearanceDraft({ themeShape: shapeId });
-    const shapeDef = MENU_SHAPES.find((s) => s.id === shapeId);
-    showToast(`تم تطبيق وحفظ شكل "${shapeDef?.name || shapeId}" ✓`);
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSaveAppearance = async () => {
@@ -2101,7 +2073,7 @@ function useDashboardController({
     try {
       await commitAppearanceDraft({});
       onRefresh();
-      showToast('تم حفظ وتطبيق كافة تغييرات المظهر على المنيو بنجاح ✓');
+      showToast('تم تطبيق التغيرات');
     } finally {
       setAppearanceSaving(false);
     }
@@ -2115,7 +2087,7 @@ function useDashboardController({
       currency: nextCurrency,
     });
     onRefresh();
-    showToast(`تم تغيير عملة الأسعار إلى (${nextCurrency}) ✓`);
+    showToast('تم تطبيق التغيرات');
   };
 
   const applyTimeToOpenDays = (fromTime: string, toTime: string) => {
@@ -2128,7 +2100,7 @@ function useDashboardController({
       });
       return next;
     });
-    showToast('تم تعميم التوقيت على جميع الأيام المفتوحة ✓');
+    showToast('تم تطبيق التغيرات');
   };
 
   const handleSaveSettings = () => {

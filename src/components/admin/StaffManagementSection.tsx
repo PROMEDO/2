@@ -383,7 +383,7 @@ export const StaffManagementSection: React.FC<StaffManagementSectionProps> = ({
           `الموظف: ${res.staff.name} (${res.staff.roleTitle})`,
           'staff'
         );
-        showToast('تم حفظ وتحديث بيانات الموظف في قاعدة البيانات ✓');
+        showToast('تم تطبيق التغيرات');
       } else {
         const res = await createStaffApi({
           name: cleanName,
@@ -400,7 +400,7 @@ export const StaffManagementSection: React.FC<StaffManagementSectionProps> = ({
           `الموظف: ${res.staff.name} - ${res.staff.roleTitle}`,
           'staff'
         );
-        showToast('تم إنشاء حساب الموظف وحفظه في قاعدة البيانات ✓');
+        showToast('تم تطبيق التغيرات');
       }
 
       setShowModal(false);
@@ -425,7 +425,7 @@ export const StaffManagementSection: React.FC<StaffManagementSectionProps> = ({
         `الموظف: ${deleteTarget.name} (${deleteTarget.phone || deleteTarget.email})`,
         'staff'
       );
-      showToast(`تم حذف الموظف "${deleteTarget.name}" نهائياً من قاعدة البيانات ✓`);
+      showToast('تم تطبيق التغيرات');
       setDeleteTarget(null);
       await loadStaff(true);
       void syncFromServer().then(() => onRefresh());

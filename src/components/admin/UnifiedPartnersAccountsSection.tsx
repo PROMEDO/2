@@ -247,7 +247,7 @@ export const UnifiedPartnersAccountsSection: React.FC<UnifiedPartnersAccountsSec
       onRefresh();
       setActionTarget(res.account);
       setActionView('menu');
-      showToast(`تم تفعيل "${chosenPlan?.n || grantPlanId}" لمدة ${safeDays} يوم بنجاح ✓`);
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setModalError(err instanceof Error ? err.message : 'تعذر حفظ الباقة والمدة');
     } finally {
@@ -289,7 +289,7 @@ export const UnifiedPartnersAccountsSection: React.FC<UnifiedPartnersAccountsSec
       setActionTarget(res.account);
       setEditNewPassword('');
       setActionView('menu');
-      showToast('تم حفظ تعديلات الحساب والمشروع بنجاح ✓');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setModalError(err instanceof Error ? err.message : 'تعذر حفظ تعديلات الحساب');
     } finally {
@@ -328,7 +328,7 @@ export const UnifiedPartnersAccountsSection: React.FC<UnifiedPartnersAccountsSec
       onRefresh();
       setActionTarget(res.account);
       setActionView('menu');
-      showToast('تم حفظ رابط المنيو وحسابات التواصل بنجاح ✓');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setModalError(err instanceof Error ? err.message : 'تعذر حفظ رابط المنيو');
     } finally {
@@ -353,7 +353,7 @@ export const UnifiedPartnersAccountsSection: React.FC<UnifiedPartnersAccountsSec
       await loadData(true);
       onRefresh();
       setActionTarget(res.account);
-      showToast(nextActive ? 'تم تفعيل الحساب بنجاح ✓' : 'تم إيقاف الحساب بنجاح ✓');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setModalError(err instanceof Error ? err.message : 'تعذر تغيير حالة الحساب');
     } finally {
@@ -379,7 +379,7 @@ export const UnifiedPartnersAccountsSection: React.FC<UnifiedPartnersAccountsSec
       await syncFromServer();
       await loadData(true);
       onRefresh();
-      showToast('تم حذف حساب المنصة بنجاح ✓ مع الاحتفاظ برقم التليكرام في قاعدة البيانات');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setModalError(err instanceof Error ? err.message : 'تعذر حذف السجل');
     } finally {
@@ -430,7 +430,7 @@ export const UnifiedPartnersAccountsSection: React.FC<UnifiedPartnersAccountsSec
       await syncFromServer();
       await loadData(true);
       onRefresh();
-      showToast('تمت إضافة الشريك والمشروع وحفظه في قاعدة البيانات ✓');
+      showToast('تم تطبيق التغيرات');
     } catch (err: unknown) {
       setAddError(err instanceof Error ? err.message : 'تعذر إضافة الشريك');
     } finally {
