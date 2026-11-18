@@ -183,86 +183,29 @@ export const CategoriesPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '18px',
-          gap: '12px',
-          flexWrap: 'wrap',
-        }}
-      >
+      <div className="mp-items-toolbar">
         <button
           type="button"
           onClick={openNewCategoryModal}
-          className={atCatLimit ? 'btn s' : 'btn p'}
-          style={{
-            height: '42px',
-            minHeight: '42px',
-            borderRadius: '12px',
-            padding: '0 16px',
-            fontSize: '13.5px',
-            fontWeight: 800,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-          }}
+          className={`${atCatLimit ? 'btn s' : 'btn p'} mp-items-add-btn`}
         >
           <span>{atCatLimit ? 'الحد مكتمل 🔒' : 'إضافة قسم'}</span>
           <Plus size={17} />
         </button>
 
-        <button
-          type="button"
-          tabIndex={-1}
-          aria-disabled="true"
-          style={{
-            height: '42px',
-            minHeight: '42px',
-            borderRadius: '12px',
-            padding: '0 10px 0 12px',
-            border: '1px solid var(--line)',
-            background: 'var(--card)',
-            color: 'var(--ink)',
-            fontSize: '12.5px',
-            fontWeight: 700,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            cursor: 'default',
-            pointerEvents: 'none',
-            userSelect: 'none',
-          }}
+        <div
+          className={`mp-items-count-box ${atCatLimit ? 'is-limit' : ''}`}
+          aria-label={`عدد الأقسام ${catLimitText}`}
         >
-          <span style={{ color: 'var(--muted)', fontWeight: 700 }}>عدد الأقسام</span>
-          <span
-            dir="ltr"
-            className="tabular-nums"
-            style={{
-              fontSize: '12.5px',
-              fontWeight: 800,
-              padding: '3px 9px',
-              borderRadius: '8px',
-              background: atCatLimit
-                ? 'rgba(239, 68, 68, 0.14)'
-                : 'color-mix(in srgb, var(--ink) 8%, transparent)',
-              border: atCatLimit
-                ? '1px solid rgba(239, 68, 68, 0.35)'
-                : '1px solid color-mix(in srgb, var(--line) 80%, transparent)',
-              color: atCatLimit ? '#ef4444' : 'var(--ink)',
-              lineHeight: 1.3,
-            }}
-          >
+          <span className="mp-items-count-label">عدد الأقسام</span>
+          <span className="mp-items-count-divider" aria-hidden="true" />
+          <span dir="ltr" className="mp-items-count-num tabular-nums">
             {catLimitText}
           </span>
-        </button>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="mp-items-list">
         {displayCategories.map((c) => {
           const isCatVisible = c.published !== false;
           const isDragging = draggingCatId === c.id;
@@ -277,19 +220,11 @@ export const CategoriesPage: React.FC = () => {
                   rowRefs.current.delete(c.id);
                 }
               }}
+              className={`mp-item-card ${!isCatVisible ? 'is-hidden-item' : ''}`}
               style={{
-                ...surfaceCardStyle,
-                borderRadius: '12px',
-                padding: '12px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '10px',
-                opacity: isCatVisible ? 1 : 0.65,
-                position: 'relative',
                 zIndex: isDragging ? 40 : 1,
                 transform: isDragging ? `translateY(${dragOffsetY}px) scale(1.015)` : 'none',
-                border: isDragging ? '1.5px solid var(--brand)' : surfaceCardStyle.border,
+                border: isDragging ? '1.5px solid var(--brand)' : undefined,
                 boxShadow: isDragging ? '0 14px 32px rgba(0, 0, 0, 0.35)' : undefined,
                 transition: isDragging
                   ? 'box-shadow 0.15s ease, border-color 0.15s ease'
@@ -297,28 +232,15 @@ export const CategoriesPage: React.FC = () => {
                 userSelect: draggingCatId ? 'none' : undefined,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+              <div className="mp-item-main">
                 {canReorder && (
                   <button
                     type="button"
+                    className="mp-item-drag-btn"
                     onPointerDown={(e) => startHandleDrag(e, c.id)}
                     title="اسحب لتحريك القسم للأعلى أو للأسفل"
                     aria-label={`تحريك قسم ${c.n}`}
-                    style={{
-                      touchAction: 'none',
-                      userSelect: 'none',
-                      WebkitUserSelect: 'none',
-                      background: 'transparent',
-                      border: 'none',
-                      padding: '6px 4px',
-                      margin: '-6px -2px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: isDragging ? 'grabbing' : 'grab',
-                      flexShrink: 0,
-                      borderRadius: '8px',
-                    }}
+                    style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                   >
                     <SixDotDragHandle />
                   </button>
@@ -328,96 +250,63 @@ export const CategoriesPage: React.FC = () => {
                     src={c.img}
                     alt={c.n}
                     referrerPolicy="no-referrer"
-                    style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'cover', flexShrink: 0 }}
+                    className="mp-item-thumb"
                   />
                 )}
-                <div style={{ minWidth: 0 }}>
-                  <span
-                    style={{
-                      fontSize: '15px',
-                      fontWeight: 800,
-                      color: 'var(--ink)',
-                      display: 'block',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {c.n}
-                  </span>
+                <div className="mp-item-info">
+                  <div className="mp-item-title">{c.n}</div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={isCatVisible}
-                  aria-label={isCatVisible ? 'إخفاء القسم من المنيو' : 'إظهار القسم في المنيو'}
-                  title={isCatVisible ? 'ظاهر في المنيو — اضغط للإيقاف' : 'مخفي من المنيو — اضغط للتشغيل'}
-                  onClick={() => handleToggleCategoryVisibility(c)}
-                  className={`ios-switch ${isCatVisible ? 'on' : 'off'}`}
-                >
-                  <span className="ios-switch-thumb" />
-                </button>
+              <div className="mp-item-actions">
+                <div className="mp-item-visibility-wrap">
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isCatVisible}
+                    aria-label={isCatVisible ? 'إخفاء القسم من المنيو' : 'إظهار القسم في المنيو'}
+                    title={isCatVisible ? 'ظاهر في المنيو — اضغط للإيقاف' : 'مخفي من المنيو — اضغط للتشغيل'}
+                    onClick={() => handleToggleCategoryVisibility(c)}
+                    className={`ios-switch ${isCatVisible ? 'on' : 'off'}`}
+                  >
+                    <span className="ios-switch-thumb" />
+                  </button>
+                  <span className={`mp-item-visibility-label ${isCatVisible ? 'is-visible' : ''}`}>
+                    {isCatVisible ? 'ظاهر' : 'مخفي'}
+                  </span>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => openScheduleModal(c)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '10px',
-                    border: hasSchedule ? '1px solid rgba(255, 59, 48, 0.6)' : '1px solid var(--line)',
-                    background: hasSchedule ? 'rgba(255, 59, 48, 0.16)' : 'var(--bg)',
-                    color: hasSchedule ? '#ff3b30' : 'var(--ink)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                  title="تعيين وقت توفر القسم"
-                  aria-label="تعيين وقت توفر القسم"
-                >
-                  <Clock size={14} />
-                </button>
+                <div className="mp-item-action-btns">
+                  <button
+                    type="button"
+                    className={`mp-item-icon-btn ${hasSchedule ? 'is-scheduled' : ''}`}
+                    onClick={() => openScheduleModal(c)}
+                    title="تعيين وقت توفر القسم"
+                    aria-label="تعيين وقت توفر القسم"
+                  >
+                    <Clock size={15} />
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleOpenEditCategory(c)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '10px',
-                    border: '1px solid var(--line)',
-                    background: 'var(--bg)',
-                    color: 'var(--ink)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                  title="تعديل القسم"
-                >
-                  <Edit size={14} />
-                </button>
+                  <button
+                    type="button"
+                    className="mp-item-icon-btn"
+                    onClick={() => handleOpenEditCategory(c)}
+                    title="تعديل القسم"
+                    aria-label={`تعديل ${c.n}`}
+                  >
+                    <Edit size={15} />
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleDeleteCategory(c)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '10px',
-                    border: '1px solid var(--line)',
-                    background: 'var(--bg)',
-                    color: 'var(--ink)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                  title="حذف القسم"
-                >
-                  <Trash2 size={14} />
-                </button>
+                  <button
+                    type="button"
+                    className="mp-item-icon-btn"
+                    onClick={() => handleDeleteCategory(c)}
+                    title="حذف القسم"
+                    aria-label={`حذف ${c.n}`}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
             </div>
           );

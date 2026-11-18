@@ -7147,42 +7147,57 @@ html[data-theme="light"] .btn.s.mp-home-tip-btn.is-done {
   height: 42px;
   min-height: 42px;
   border-radius: 12px;
-  padding: 0 14px;
+  padding: 0 15px;
   border: 1px solid var(--line);
   background: var(--surface);
-  color: var(--ink);
+  color: #64748B;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  line-height: 1;
   user-select: none;
+}
+
+html[data-theme="dark"] .mp-items-count-box {
+  color: #CBD5E1;
 }
 
 .mp-items-count-box.is-limit {
   border-color: rgba(239, 68, 68, 0.45);
   background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
 }
 
 .mp-items-count-label {
-  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--muted);
+  color: inherit;
+  line-height: 1;
   white-space: nowrap;
+  transform: translateY(1px);
 }
 
 .mp-items-count-divider {
   width: 1px;
-  height: 16px;
-  background: color-mix(in srgb, var(--line) 85%, transparent);
+  height: 15px;
+  background: currentColor;
+  opacity: 0.25;
   flex-shrink: 0;
+  align-self: center;
 }
 
 .mp-items-count-num {
+  display: inline-flex;
+  align-items: center;
   font-size: 13.5px;
-  font-weight: 900;
-  color: var(--brand-ink, #0F766E);
+  font-weight: 800;
+  color: inherit;
   line-height: 1;
   white-space: nowrap;
+  transform: translateY(0.5px);
 }
 
 .mp-items-count-box.is-limit .mp-items-count-num {
