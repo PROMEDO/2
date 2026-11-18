@@ -2236,23 +2236,14 @@ function useDashboardController({
   const handleUpdateOrderStatus = (orderId: string, nextStatus: string) => {
     const target = allOrders.find((x) => x.id === orderId);
     if (!target) return;
-    triggerAjaxConfirm(
-      'تحديث حالة الطلب',
-      `هل أنت متأكد من تحويل حالة الطلب #${orderId.slice(-6).toUpperCase()} إلى "${
-        nextStatus === 'completed' ? 'مكتمل' : nextStatus === 'cancelled' ? 'ملغي' : 'قيد التجهيز'
-      }"؟`,
-      nextStatus === 'cancelled' ? 'danger' : 'info',
-      'تأكيد التحديث',
-      () => {
-        putItem<Order>(`orders/${orderId}`, {
-          ...target,
-          st: nextStatus,
-          status: nextStatus as OrderStatus,
-        });
-        onRefresh();
-      },
-      'تم تحديث حالة الطلب بنجاح'
-    );
+    const normalizedStatus = nextStatus === 'new' ? 'pending' : nextStatus;
+    putItem<Order>(`orders/${orderId}`, {
+      ...target,
+      st: nextStatus,
+      status: normalizedStatus as OrderStatus,
+    });
+    onRefresh();
+    showToast('تم تطبيق التغيرات');
   };
 
   const filteredCategories = allCategories.filter((c) => {

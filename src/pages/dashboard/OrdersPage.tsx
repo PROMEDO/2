@@ -4,10 +4,12 @@
  */
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import {
   CalendarClock,
   Check,
+  ChevronDown,
   Copy,
   ExternalLink,
   Eye,
@@ -77,17 +79,28 @@ function getOrderTypeInfo(order: Order) {
   };
 }
 
+const ORDER_STATUS_OPTIONS = [
+  { value: 'new', text: 'جديد', bg: '#ea580c' },
+  { value: 'preparing', text: 'قيد التجهيز', bg: '#f59e0b' },
+  { value: 'ready', text: 'جاهز', bg: '#3b82f6' },
+  { value: 'delivering', text: 'قيد التوصيل', bg: '#8b5cf6' },
+  { value: 'completed', text: 'مكتمل', bg: '#10b981' },
+  { value: 'cancelled', text: 'ملغي', bg: '#ef4444' },
+] as const;
+
+function getNormalizedOrderStatus(order: Order): string {
+  const raw = String(order.st || order.status || 'new').toLowerCase();
+  if (raw === 'pending' || raw === 'new') return 'new';
+  if (raw === 'preparing') return 'preparing';
+  if (raw === 'ready') return 'ready';
+  if (raw === 'delivering') return 'delivering';
+  if (raw === 'completed') return 'completed';
+  return 'cancelled';
+}
+
 function getOrderStatusInfo(order: Order) {
-  if (order.st === 'new' || order.status === 'pending') {
-    return { text: 'جديد', bg: '#ea580c' };
-  }
-  if (order.st === 'preparing' || order.status === 'preparing') {
-    return { text: 'قيد التجهيز', bg: '#f59e0b' };
-  }
-  if (order.st === 'completed' || order.status === 'completed') {
-    return { text: 'مكتمل', bg: '#10b981' };
-  }
-  return { text: 'ملغي', bg: '#ef4444' };
+  const key = getNormalizedOrderStatus(order);
+  return ORDER_STATUS_OPTIONS.find((s) => s.value === key) || ORDER_STATUS_OPTIONS[0];
 }
 
 function getOrderDisplayNumber(order: Order): string {
@@ -257,19 +270,39 @@ export const OrdersPage: React.FC = () => {
                       <TypeIcon size={12} style={{ color: 'var(--brand-ink, #34D399)', flexShrink: 0 }} />
                       <span>{typeInfo.label}</span>
                     </span>
-
-                    <span
-                      className="mp-order-status-dot"
-                      style={{ background: statusInfo.bg }}
-                    >
-                      {statusInfo.text}
-                    </span>
                   </div>
 
                   <div className="mp-order-end-group">
                     <span className="mp-order-price tabular-nums">
                       {totalAmount} {currency}
                     </span>
+
+                    <div
+                      className="mp-order-status-select-wrap"
+                      style={{
+                        borderColor: `color-mix(in srgb, ${statusInfo.bg} 45%, transparent)`,
+                        background: `color-mix(in srgb, ${statusInfo.bg} 14%, var(--bg))`,
+                        color: statusInfo.bg,
+                      }}
+                    >
+                      <span
+                        className="mp-order-status-circle"
+                        style={{ background: statusInfo.bg }}
+                        aria-hidden="true"
+                      />
+                      <select
+                        aria-label={`تغيير حالة الطلب ${displayOrderNum}`}
+                        value={statusInfo.value}
+                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                      >
+                        {ORDER_STATUS_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.text}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={12} className="mp-order-status-chevron" aria-hidden="true" />
+                    </div>
 
                     {ordPhone && (
                       <a
@@ -306,7 +339,7 @@ export const OrdersPage: React.FC = () => {
                   </span>
 
                   <span className="mp-order-customer-mini">
-                    {ordName ? `${ordName} • ${statusInfo.text}` : statusInfo.text}
+                    {ordName || 'زبون'}
                   </span>
                 </div>
               </motion.div>
@@ -331,28 +364,27 @@ export const OrdersPage: React.FC = () => {
         const dateTimeLabel = formatOrderDayAndTime(selectedOrder);
         const orderLinks = extractOrderLinks(selectedOrder, rest.n);
 
-        return (
-          <>
-            <div className="drawer-backdrop" onClick={() => setSelectedOrderId(null)} />
+        const modalContent = (
+          <div
+            className="mp-order-modal-overlay"
+            dir="rtl"
+            onClick={() => setSelectedOrderId(null)}
+          >
             <motion.div
               role="dialog"
               aria-modal="true"
               aria-label={`تفاصيل الطلب ${displayOrderNum}`}
-              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
+              onClick={(e) => e.stopPropagation()}
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               style={{
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 'min(560px, 94vw)',
-                maxHeight: '90vh',
+                width: 'min(560px, 100%)',
+                maxHeight: '90dvh',
                 overflowY: 'auto',
                 ...surfaceCardStyle,
                 borderRadius: '20px',
                 padding: '18px 18px 20px',
-                zIndex: 99999,
                 boxShadow: '0 24px 60px rgba(0, 0, 0, 0.45)',
               }}
             >
@@ -689,40 +721,51 @@ export const OrdersPage: React.FC = () => {
                 </div>
 
                 {/* Status Actions */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end', marginTop: '2px' }}>
-                  {selectedOrder.st !== 'preparing' && selectedOrder.st !== 'completed' && (
-                    <button
-                      type="button"
-                      className="btn s"
-                      onClick={() => handleUpdateOrderStatus(selectedOrder.id, 'preparing')}
-                    >
-                      <span>قيد التجهيز</span>
-                    </button>
-                  )}
-                  {selectedOrder.st !== 'completed' && (
-                    <button
-                      type="button"
-                      className="btn p s"
-                      onClick={() => handleUpdateOrderStatus(selectedOrder.id, 'completed')}
-                    >
-                      <Check size={14} />
-                      <span>تعيين كمكتمل</span>
-                    </button>
-                  )}
-                  {selectedOrder.st !== 'cancelled' && selectedOrder.st !== 'completed' && (
-                    <button
-                      type="button"
-                      className="btn d s"
-                      onClick={() => handleUpdateOrderStatus(selectedOrder.id, 'cancelled')}
-                    >
-                      <span>إلغاء الطلب</span>
-                    </button>
-                  )}
+                <div className="mp-order-modal-section">
+                  <h4 className="mp-order-modal-section-title">
+                    <Check size={14} />
+                    <span>تغيير حالة الطلب</span>
+                  </h4>
+                  <div className="mp-order-status-pills-grid">
+                    {ORDER_STATUS_OPTIONS.map((opt) => {
+                      const active = statusInfo.value === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => handleUpdateOrderStatus(selectedOrder.id, opt.value)}
+                          className={`mp-order-modal-status-btn ${active ? 'is-active' : ''}`}
+                          style={
+                            active
+                              ? {
+                                  background: opt.bg,
+                                  borderColor: opt.bg,
+                                  color: '#ffffff',
+                                }
+                              : {
+                                  borderColor: `color-mix(in srgb, ${opt.bg} 32%, var(--line))`,
+                                }
+                          }
+                        >
+                          <span
+                            className="mp-order-status-circle"
+                            style={{ background: active ? '#ffffff' : opt.bg }}
+                            aria-hidden="true"
+                          />
+                          <span>{opt.text}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </motion.div>
-          </>
+          </div>
         );
+
+        return typeof document !== 'undefined'
+          ? createPortal(modalContent, document.body)
+          : modalContent;
       })()}
     </div>
   );
