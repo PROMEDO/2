@@ -14,6 +14,7 @@ import {
   Clock,
   Flame,
   Gift,
+  GitBranch,
   Heart,
   Info,
   LayoutGrid,
@@ -95,6 +96,12 @@ interface PublicMenuViewProps {
   session: Session | null;
   onNavigate: (hash: string) => void;
   showToast: (msg: string) => void;
+}
+
+interface PublicMenuContentProps extends PublicMenuViewProps {
+  hasMultipleBranches: boolean;
+  branchShortLabel: string;
+  onOpenBranchPicker: () => void;
 }
 
 interface CartLine {
@@ -257,11 +264,14 @@ function getTableFromUrl(): string {
   return '';
 }
 
-export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
+const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
   restaurantId,
   session,
   onNavigate,
   showToast,
+  hasMultipleBranches,
+  branchShortLabel,
+  onOpenBranchPicker,
 }) => {
   const { t, lang, isRtl } = useTranslation();
   const [, setSyncTick] = useState(0);
@@ -755,10 +765,15 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
   const [revRate, setRevRate] = useState(5);
   const [revComment, setRevComment] = useState('');
 
-  // Only show owner controls if logged in as the menu owner (including demo/admin previewing their menu)
+  // Only show owner controls if logged in as the menu owner (including demo/admin previewing their menu or any child branch)
   const isOwner = Boolean(
     session &&
-    (session.admin || session.rid === restaurantId || session.personalRid === restaurantId)
+    (
+      session.admin ||
+      session.rid === restaurantId ||
+      session.personalRid === restaurantId ||
+      (rest?.parentRid && (session.rid === rest.parentRid || session.personalRid === rest.parentRid))
+    )
   );
 
   if (!rest || (rest.a === 0 && !isOwner)) {
@@ -1612,6 +1627,20 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
               <span>{ORDER_TYPE_META[orderType].label}</span>
               <ChevronDown size={14} style={{ color: 'var(--pm-muted)' }} />
             </button>
+
+            {hasMultipleBranches && (
+              <button
+                type="button"
+                className="pm-order-type-pill pm-branch-pill"
+                onClick={onOpenBranchPicker}
+                title="تبديل الفرع"
+                aria-label="تبديل الفرع"
+              >
+                <GitBranch size={14} style={{ color: accentText, flexShrink: 0 }} />
+                <span className="pm-branch-pill-label">{branchShortLabel}</span>
+                <ChevronDown size={13} style={{ color: 'var(--pm-muted)', flexShrink: 0 }} />
+              </button>
+            )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -5148,5 +5177,298 @@ export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
         }}
       />
     </div>
+  );
+};
+
+export const PublicMenuView: React.FC<PublicMenuViewProps> = ({
+  restaurantId,
+  session,
+  onNavigate,
+  showToast,
+}) => {
+  const [syncTick, setSyncTick] = useState(0);
+  const [branchPickerOpen, setBranchPickerOpen] = useState(false);
+  const autoPromptedRootRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const handleDbUpdated = () => {
+      if (active) setSyncTick((prev) => prev + 1);
+    };
+    window.addEventListener('menuplus_db_updated', handleDbUpdated);
+    return () => {
+      active = false;
+      window.removeEventListener('menuplus_db_updated', handleDbUpdated);
+    };
+  }, []);
+
+  const entryRest = getItem<Restaurant>(`restaurants/${restaurantId}`);
+  const rootRid =
+    entryRest?.isBranch && entryRest?.parentRid
+      ? entryRest.parentRid
+      : entryRest?.id || restaurantId;
+  const rawMainBranch = getItem<Restaurant>(`restaurants/${rootRid}`) || entryRest;
+  const isFamilyOwner = Boolean(
+    session && (session.admin || session.rid === rootRid || session.personalRid === rootRid)
+  );
+  const allRests = getCollection<Restaurant>('restaurants');
+  const childBranches = allRests.filter(
+    (r) => r.parentRid === rootRid && r.isBranch && (isFamilyOwner || r.a !== 0)
+  );
+  const allFamilyBranches = [rawMainBranch, ...childBranches]
+    .filter((b): b is Restaurant => Boolean(b && b.id))
+    .filter((b, idx, arr) => arr.findIndex((x) => x.id === b.id) === idx)
+    .map((b) => ensureRestaurantDefaults(b));
+
+  const hasMultipleBranches = allFamilyBranches.length >= 2;
+  const prefKey = `menuplus_selected_branch_${rootRid}`;
+
+  const readSavedBranchId = (): string | null => {
+    try {
+      const saved = window.localStorage.getItem(prefKey);
+      if (saved && allFamilyBranches.some((b) => b.id === saved)) {
+        return saved;
+      }
+    } catch {
+      // ignore storage errors
+    }
+    return null;
+  };
+
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(() => {
+    if (isFamilyOwner) return restaurantId;
+    return readSavedBranchId() || restaurantId;
+  });
+
+  useEffect(() => {
+    if (isFamilyOwner) {
+      setSelectedBranchId(restaurantId);
+      return;
+    }
+    const saved = readSavedBranchId();
+    setSelectedBranchId(saved || restaurantId);
+  }, [restaurantId, rootRid, isFamilyOwner]);
+
+  useEffect(() => {
+    if (!hasMultipleBranches) {
+      setBranchPickerOpen(false);
+      return;
+    }
+    const saved = readSavedBranchId();
+    if (saved) {
+      if (!isFamilyOwner) {
+        setSelectedBranchId(saved);
+      }
+      return;
+    }
+    if (autoPromptedRootRef.current !== rootRid) {
+      autoPromptedRootRef.current = rootRid;
+      setBranchPickerOpen(true);
+    }
+  }, [hasMultipleBranches, rootRid, syncTick, isFamilyOwner]);
+
+  const effectiveRestaurantId =
+    hasMultipleBranches && allFamilyBranches.some((b) => b.id === selectedBranchId)
+      ? selectedBranchId
+      : restaurantId;
+
+  const activeBranchObj =
+    allFamilyBranches.find((b) => b.id === effectiveRestaurantId) || allFamilyBranches[0];
+  const branchShortLabel = !activeBranchObj
+    ? 'اختر الفرع'
+    : activeBranchObj.id === rootRid
+    ? 'الفرع الرئيسي'
+    : activeBranchObj.branchName || activeBranchObj.n;
+
+  const activeTheme = getMenuThemeById(activeBranchObj?.themePreset, activeBranchObj?.themeMode);
+  const activeMode = activeTheme.mode;
+  const modalBg = activeBranchObj?.bgColor || activeTheme.bg;
+  const modalCard = activeTheme.surface;
+  const modalInk = getContrastInk(modalCard);
+  const modalMuted = activeMode === 'light' ? '#64748b' : '#94a3b8';
+  const modalLine = activeMode === 'light' ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.12)';
+  const modalBrand = activeBranchObj?.color || activeTheme.brand;
+  const modalBrandInk = getContrastInk(modalBrand);
+
+  const handleChooseBranch = (branchId: string) => {
+    try {
+      window.localStorage.setItem(prefKey, branchId);
+    } catch {
+      // ignore storage errors
+    }
+    setSelectedBranchId(branchId);
+    setBranchPickerOpen(false);
+  };
+
+  const handleDismissBranchPicker = () => {
+    try {
+      if (!window.localStorage.getItem(prefKey)) {
+        window.localStorage.setItem(prefKey, effectiveRestaurantId);
+      }
+    } catch {
+      // ignore storage errors
+    }
+    setBranchPickerOpen(false);
+  };
+
+  return (
+    <>
+      <PublicMenuContent
+        key={effectiveRestaurantId}
+        restaurantId={effectiveRestaurantId}
+        session={session}
+        onNavigate={onNavigate}
+        showToast={showToast}
+        hasMultipleBranches={hasMultipleBranches}
+        branchShortLabel={branchShortLabel}
+        onOpenBranchPicker={() => setBranchPickerOpen(true)}
+      />
+
+      {hasMultipleBranches && branchPickerOpen && (
+        <div
+          className="pm-modal-backdrop"
+          style={{ zIndex: 99999 }}
+          onClick={handleDismissBranchPicker}
+        >
+          <div
+            className="pm-sheet"
+            dir="rtl"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              borderRadius: '24px',
+              maxWidth: '430px',
+              padding: '20px',
+              background: modalCard,
+              color: modalInk,
+              border: `1px solid ${modalLine}`,
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.45)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '11px',
+                    background: `color-mix(in srgb, ${modalBrand} 18%, ${modalBg})`,
+                    color: modalBrand,
+                    display: 'grid',
+                    placeItems: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <GitBranch size={18} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 900, color: modalInk }}>
+                    اختر الفرع
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '12px', color: modalMuted }}>
+                    اختر الفرع لعرض المنيو الخاص به، ويمكنك تبديله لاحقاً من الأعلى
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleDismissBranchPicker}
+                aria-label="إغلاق"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  border: `1px solid ${modalLine}`,
+                  background: modalBg,
+                  color: modalMuted,
+                  display: 'grid',
+                  placeItems: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '9px', marginTop: '14px', maxHeight: '60vh', overflowY: 'auto' }}>
+              {allFamilyBranches.map((branch) => {
+                const isMain = branch.id === rootRid;
+                const isSelected = branch.id === effectiveRestaurantId;
+                const branchTitle = isMain ? `${branch.n} (الفرع الرئيسي)` : branch.branchName || branch.n;
+                const branchOpen = isRestaurantOpenNow(branch);
+                return (
+                  <button
+                    key={branch.id}
+                    type="button"
+                    onClick={() => handleChooseBranch(branch.id)}
+                    style={{
+                      width: '100%',
+                      textAlign: 'start',
+                      padding: '13px 14px',
+                      borderRadius: '15px',
+                      border: isSelected ? `2px solid ${modalBrand}` : `1px solid ${modalLine}`,
+                      background: isSelected
+                        ? `color-mix(in srgb, ${modalBrand} 12%, ${modalBg})`
+                        : modalBg,
+                      color: modalInk,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '10px',
+                      transition: 'transform 0.14s ease, border-color 0.14s ease',
+                    }}
+                  >
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <b style={{ fontSize: '14px', color: modalInk }}>{branchTitle}</b>
+                        <span
+                          style={{
+                            fontSize: '10.5px',
+                            fontWeight: 800,
+                            padding: '2px 7px',
+                            borderRadius: '8px',
+                            background: branchOpen ? 'rgba(16, 185, 129, 0.16)' : 'rgba(239, 68, 68, 0.16)',
+                            color: branchOpen ? '#10b981' : '#ef4444',
+                          }}
+                        >
+                          {branchOpen ? 'مفتوح' : 'مغلق'}
+                        </span>
+                      </div>
+                      {(branch.address || branch.ph) && (
+                        <div style={{ fontSize: '11.5px', color: modalMuted, marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {branch.address ? `📍 ${branch.address}` : ''}
+                          {branch.address && branch.ph ? ' • ' : ''}
+                          {branch.ph ? `📞 ${branch.ph}` : ''}
+                        </div>
+                      )}
+                    </div>
+
+                    {isSelected ? (
+                      <span
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          background: modalBrand,
+                          color: modalBrandInk,
+                          display: 'grid',
+                          placeItems: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Check size={13} strokeWidth={3} />
+                      </span>
+                    ) : (
+                      <ChevronLeft size={16} style={{ color: modalMuted, flexShrink: 0 }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

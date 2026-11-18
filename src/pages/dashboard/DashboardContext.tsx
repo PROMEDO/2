@@ -423,11 +423,33 @@ function useDashboardController({
 }: DashboardViewProps) {
   const { lang, setLang, isRtl } = useTranslation();
   const mainRid = session.rid || 'demo';
-  const [activeRid, setActiveRid] = useState<string>(mainRid);
+  const [activeRid, setActiveRidState] = useState<string>(() => {
+    try {
+      const saved = window.sessionStorage.getItem(`mp_active_branch_${mainRid}`);
+      if (saved) return saved;
+    } catch {
+      // ignore storage errors
+    }
+    return mainRid;
+  });
+
+  const setActiveRid = (nextRid: string) => {
+    setActiveRidState(nextRid);
+    try {
+      window.sessionStorage.setItem(`mp_active_branch_${mainRid}`, nextRid);
+    } catch {
+      // ignore storage errors
+    }
+  };
 
   // Reset active branch when logged account changes
   useEffect(() => {
-    setActiveRid(mainRid);
+    try {
+      const saved = window.sessionStorage.getItem(`mp_active_branch_${mainRid}`);
+      setActiveRidState(saved || mainRid);
+    } catch {
+      setActiveRidState(mainRid);
+    }
   }, [mainRid]);
 
   const branchesList = getCollection<Restaurant>('restaurants').filter(
@@ -697,7 +719,7 @@ function useDashboardController({
     });
 
     putItem<Restaurant>(`restaurants/${newBranchId}`, branchRecord);
-    if (cloneMainMenu) {
+    if (cloneMainMenu !== false) {
       cloneCatsAndItemsFromMain(newBranchId);
     }
     setActiveRid(newBranchId);

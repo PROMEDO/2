@@ -405,21 +405,21 @@ const DashboardShell: React.FC = () => {
             </span>
 
             {branchesList.length > 0 && (
-              <span
-                className="desktop-only"
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 800,
-                  color: 'var(--brand-ink, #34D399)',
-                  background: 'var(--soft)',
-                  padding: '4px 10px',
-                  borderRadius: '9px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <GitBranch size={13} style={{ display: 'inline', verticalAlign: 'middle', marginInlineEnd: '4px' }} />
-                {activeRid === mainRid ? 'الفرع الرئيسي' : rest.branchName || rest.n}
-              </span>
+              <div className="mp-topbar-branch-switch" title="تبديل الفرع للتعديل">
+                <GitBranch size={13} style={{ color: 'var(--brand-ink, #34D399)', flexShrink: 0 }} />
+                <select
+                  aria-label="تبديل الفرع"
+                  value={activeRid}
+                  onChange={(e) => switchActiveBranch(e.target.value)}
+                >
+                  <option value={mainRid}>الفرع الرئيسي</option>
+                  {branchesList.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.branchName || b.n}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
           </div>
 

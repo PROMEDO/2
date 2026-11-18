@@ -9151,6 +9151,75 @@ html[data-theme="dark"] .mp-items-count-box {
   }
 }
 
+/* ===== Multi-Branch Topbar Switchers ===== */
+.mp-topbar-branch-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--soft);
+  border: 1px solid color-mix(in srgb, var(--brand) 36%, var(--line));
+  border-radius: 10px;
+  padding: 0 9px;
+  height: 32px;
+  max-width: 190px;
+  min-width: 0;
+}
+
+.mp-topbar-branch-switch select {
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  min-width: 0;
+  max-width: 145px;
+  text-overflow: ellipsis;
+}
+
+.mp-topbar-branch-switch select option {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.pm-branch-pill {
+  max-width: 150px;
+}
+
+.pm-branch-pill-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 105px;
+}
+
+@media (max-width: 640px) {
+  .mp-topbar-branch-switch {
+    max-width: 132px;
+    height: 30px;
+    padding: 0 7px;
+    gap: 4px;
+  }
+
+  .mp-topbar-branch-switch select {
+    font-size: 11px;
+    max-width: 98px;
+  }
+
+  .pm-branch-pill {
+    max-width: 118px;
+    padding-inline: 8px !important;
+  }
+
+  .pm-branch-pill-label {
+    max-width: 72px;
+    font-size: 11.5px;
+  }
+}
+
+
 
 
 

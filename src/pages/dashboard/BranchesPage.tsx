@@ -73,7 +73,7 @@ export const BranchesPage: React.FC = () => {
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    const ok = createBranch(newBranchName, newBranchPhone, newBranchAddress, cloneOnCreate);
+    const ok = createBranch(newBranchName, newBranchPhone, newBranchAddress, true);
     if (ok) {
       setNewBranchName('');
       setNewBranchPhone('');
